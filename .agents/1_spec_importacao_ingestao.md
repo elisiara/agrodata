@@ -158,15 +158,15 @@ CRITÉRIOS DE ACEITE (db.py)
    do windows, onde acento sai embaralhado por padrão.
 
 ## 7. ERRO
-   Antes de abrir o banco, verifique se os cinco arquivos existem.
+   Antes de abrir o banco, verifique se os seis arquivos existem.
    Faltando qualquer um: liste os que faltam, diga em que pasta procurou e
    encerre com sys.exit(1). Não ingira parcialmente.
-   Motivo: ingerir quatro de cinco tabelas em silêncio produz um dashboard
+   Motivo: ingerir cinco de seis tabelas em silêncio produz um dashboard
    errado que parece certo.
 
 
 CRITÉRIOS DE ACEITE (ingestão)
-- A execução imprime seis linhas e um total de 33.396 registros.
+- A execução imprime seis linhas e um total de 729.021 registros.
 - Rodar duas vezes seguidas imprime exatamente a mesma coisa.
 - SELECT * FROM raw.area_colhida devolve todas as colunas como VARCHAR.
 - Remover um arquivo da pasta faz o script parar antes de gravar qualquer
@@ -203,7 +203,7 @@ U5. SAÍDA NA TELA
 
 CRITÉRIOS DE ACEITE (ui.py)
 - uv run python ui.py abre o navegador em localhost:4213 e o schema raw
-  aparece com as nove tabelas.
+  aparece com as seis tabelas.
 - Ctrl+C devolve o terminal sem traceback, e logo depois a ingestão roda
   sem erro de lock.
 - Renomear agrodata.duckdb faz o ui.py parar com a mensagem, sem criar arquivo
