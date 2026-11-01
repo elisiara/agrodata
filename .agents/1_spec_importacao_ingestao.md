@@ -11,7 +11,7 @@ CONTEXTO
       -Área colhida (Hectares)
       -Quantidade produzida (Toneladas)
       -Rendimento médio da produção (Quilogramas por Hectare)
-      -Valor da produção Mil Reais [1994 a 2025])
+      -Valor da produção Mil Reais [1994 a 2025]
     Link .: https://sidra.ibge.gov.br/tabela/5457
   => Tabela de municipios GOV.BR. Arquivo de dados abertos da Receita Federal contendo o código TOM, código IBGE, nome do município e Unidade Federativa (UF) em formato .csv
     Link .: https://www.gov.br/receitafederal/dados/municipios.csv).
@@ -82,7 +82,7 @@ CRITÉRIOS DE ACEITE (db.py)
 
   | Arquivo CSV | Tabela de saída |
   |---|---|---|
-  | `municipios_gov.csv` | `raw.municipios` |
+  | `municipios_gov.csv` | `raw.municipio` |
 
 
   Entradas IBGE.:
@@ -90,7 +90,7 @@ CRITÉRIOS DE ACEITE (db.py)
   | Arquivo CSV | Tabela de saída |
   |---|---|---|
   | `tabela5457_area_colhida.csv` | `raw.area_colhida` |
-  | `tabela5457_area_plantada_ou_destinada_a_colheita.csv` | `raw.area_plantada` |
+  | `tabela5457_area_plantada_ou_destinada_a_colheita.csv` | `raw.area_plantada_ou_destinada_a_colheita` |
   | `tabela5457_quantidade_produzida.csv` | `raw.quantidade_produzida` |
   | `tabela5457_rendimento_medio_da_producao.csv` | `raw.rendimento_medio_da_producao` |
   | `tabela5457_valor_da_producao.csv` | `raw.valor_da_producao` |

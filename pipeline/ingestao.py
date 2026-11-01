@@ -58,7 +58,7 @@ ARQUIVOS_IBGE = (
     ),
     (
         "tabela5457_area_plantada_ou_destinada_a_colheita.csv",
-        "area_plantada",
+        "area_plantada_ou_destinada_a_colheita",
         "Variável - Área plantada ou destinada à colheita (Hectares)",
         ",",
     ),
@@ -287,9 +287,9 @@ def main() -> None:
         total = 0
 
         municipio_df = _ler_municipios(PASTA_RAW / ARQUIVO_MUNICIPIOS)
-        quantidade = gravar(con, municipio_df, SCHEMA, "municipios")
+        quantidade = gravar(con, municipio_df, SCHEMA, "municipio")
         total += quantidade
-        print(f"{SCHEMA}.municipios: {_formatar_milhar(quantidade)}")
+        print(f"{SCHEMA}.municipio: {_formatar_milhar(quantidade)}")
 
         for nome_arquivo, nome_tabela, descricao, delimitador in ARQUIVOS_IBGE:
             df = _ler_ibge(
