@@ -13,6 +13,186 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """
+    <style>
+    :root {
+        --agro-ink: #1d3028;
+        --agro-muted: #748178;
+        --agro-line: #e4eae4;
+        --agro-paper: #f4f6f3;
+        --agro-green: #23734d;
+        --agro-green-dark: #193d2d;
+        --agro-green-soft: #e7f2e9;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        background: var(--agro-paper);
+        color: var(--agro-ink);
+    }
+
+    [data-testid="stHeader"] {
+        background: transparent;
+    }
+
+    [data-testid="stMainBlockContainer"] {
+        max-width: 1540px;
+        padding: 2rem clamp(1rem, 3vw, 2.75rem) 3rem;
+    }
+
+    h1, h2, h3, [data-testid="stMarkdownContainer"] strong {
+        color: var(--agro-ink);
+    }
+
+    h1 {
+        font-size: clamp(1.8rem, 2.4vw, 2.3rem);
+        font-weight: 750;
+        letter-spacing: -0.045em;
+    }
+
+    h2, h3 {
+        letter-spacing: -0.025em;
+    }
+
+    .agro-eyebrow {
+        margin-bottom: -0.55rem;
+        color: var(--agro-green);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    [data-testid="stCaptionContainer"] {
+        color: var(--agro-muted);
+    }
+
+    [data-testid="stMetric"] {
+        min-height: 118px;
+        padding: 1rem 1.15rem;
+        border: 1px solid var(--agro-line);
+        border-top: 3px solid var(--agro-green);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 8px 24px #203b2b0a;
+    }
+
+    [data-testid="stMetricLabel"] {
+        color: var(--agro-muted);
+        font-size: 0.8rem;
+        font-weight: 650;
+    }
+
+    [data-testid="stMetricValue"] {
+        color: var(--agro-ink);
+        font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+        font-weight: 760;
+        letter-spacing: -0.04em;
+    }
+
+    [data-testid="stTabs"] [data-baseweb="tab-list"] {
+        gap: 0.35rem;
+        padding: 0.35rem;
+        border: 1px solid var(--agro-line);
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    [data-testid="stTabs"] button[role="tab"] {
+        min-height: 2.65rem;
+        padding: 0.55rem 1rem;
+        border-radius: 8px;
+        color: var(--agro-green-dark);
+        font-weight: 700;
+    }
+
+    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+        color: #fff !important;
+        background: var(--agro-green-dark) !important;
+        box-shadow: none !important;
+    }
+
+    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] *,
+    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] p {
+        color: #fff !important;
+    }
+
+    [data-testid="stTabs"] [data-baseweb="tab-highlight"],
+    [data-testid="stTabs"] [data-baseweb="tab-border"] {
+        background-color: var(--agro-green-dark) !important;
+        border-color: var(--agro-green-dark) !important;
+    }
+
+    [data-testid="stTabs"] [data-testid="stTabContent"] {
+        padding-top: 1.15rem;
+    }
+
+    [data-testid="stPlotlyChart"] {
+        overflow: hidden;
+        border: 1px solid var(--agro-line);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 8px 24px #203b2b08;
+    }
+
+    [data-testid="stDataFrame"] {
+        overflow: hidden;
+        border: 1px solid var(--agro-line);
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    [data-testid="stTextInput"] input,
+    [data-baseweb="select"] > div {
+        border-color: #dce4dc;
+        border-radius: 9px;
+        background: #fff;
+    }
+
+    [data-testid="stButton"] button {
+        min-height: 2.55rem;
+        border: 1px solid var(--agro-green);
+        border-radius: 9px;
+        color: #fff;
+        background: var(--agro-green);
+        font-weight: 700;
+        transition: background 120ms ease, border-color 120ms ease;
+    }
+
+    [data-testid="stButton"] button:hover {
+        border-color: var(--agro-green-dark);
+        color: #fff;
+        background: var(--agro-green-dark);
+    }
+
+    [data-testid="stAlert"] {
+        border-radius: 11px;
+    }
+
+    @media (max-width: 760px) {
+        [data-testid="stMainBlockContainer"] {
+            padding-top: 1.25rem;
+        }
+
+        [data-testid="stMetric"] {
+            min-height: 104px;
+            padding: 0.8rem;
+        }
+
+        [data-testid="stTabs"] [data-baseweb="tab-list"] {
+            overflow-x: auto;
+        }
+
+        [data-testid="stTabs"] button[role="tab"] {
+            padding-inline: 0.75rem;
+            white-space: nowrap;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 COLUNAS_OBRIGATORIAS: dict[str, tuple[str, ...]] = {
     "ranking_valor_da_producao_muncipio_por_cultura": (
         "cultura",
@@ -181,6 +361,10 @@ def mostrar_erro_marts(mensagem: str) -> None:
 
 cabecalho, acao = st.columns([8, 1])
 with cabecalho:
+    st.markdown(
+        '<div class="agro-eyebrow">Painel de inteligência agrícola</div>',
+        unsafe_allow_html=True,
+    )
     st.title("Produção agrícola brasileira")
     st.caption(
         "Culturas consideradas: Arroz, Algodão, Café, Feijão, Milho, Soja e "
@@ -209,7 +393,10 @@ if colunas_faltantes:
         + ". Execute `uv run python -m pipeline.marts`."
     )
 
-st.caption("Dados carregados do DuckDB · indicadores nacionais de 2025")
+st.caption(
+    "Dados carregados do DuckDB · indicadores nacionais de 2025 · "
+    "rendimento convertido de kg/ha para t/ha."
+)
 resumo = marts["resumo_totais_2025"].iloc[0]
 metricas = st.columns(4)
 metricas[0].metric(
