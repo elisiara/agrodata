@@ -10,6 +10,18 @@ dependencies = [
     "streamlit>=1.66.1",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["test/*", "app.py", "ui.py", ".venv/*"]
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true
+
 [dependency-groups]
 dev = [
     "pytest>=9.2.0",
