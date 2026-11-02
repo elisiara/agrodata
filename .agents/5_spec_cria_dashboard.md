@@ -1,6 +1,6 @@
 CONTEXTO
 Estou construindo um pipeline de dados em Python sobre o dataset público do IBGE sobre
-Pesquisa Agrícola Municipal (PAM), tabela SIDRA 5457(2000-2025) e tabela de muncipios do GOV.BR.
+Pesquisa Agrícola Municipal (PAM), tabela SIDRA 5457(2000-2025) e tabela de municípios do GOV.BR.
 Trabalho com spec-driven development: a spec abaixo é a fonte da
 verdade e o código é consequência dela. Não acrescente requisito que não
 esteja escrito aqui. Se algo estiver ambíguo, pergunte antes de escrever código.
