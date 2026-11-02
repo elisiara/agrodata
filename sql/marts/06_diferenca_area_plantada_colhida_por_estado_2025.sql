@@ -1,5 +1,9 @@
 -- 6. Diferença entre área plantada e colhida, agrupada por estado,
 -- em hectares, para 2025. Considera somente registros municipais (MU).
+-- Grão das CTEs e do resultado:
+-- area_plantada: município em 2025.
+-- area_colhida: município em 2025.
+-- Resultado final: estado (UF), agregado de seus municípios em 2025.
 
 WITH area_plantada AS (
     SELECT

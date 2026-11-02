@@ -1,6 +1,11 @@
 -- 7. Municípios com maior aumento da quantidade produzida entre 2000 e 2025.
 -- Soma as sete culturas por município e ano, considera somente registros MU
 -- e ordena os dez maiores aumentos pela quantidade produzida em 2025.
+-- Grão das CTEs e do resultado:
+-- quantidade_por_municipio_ano: município × ano (2000 ou 2025).
+-- variacao_por_municipio: município com dados nos dois anos.
+-- maiores_aumentos: município, com aumento calculado e posição por aumento.
+-- Resultado final: município entre os 10 maiores aumentos.
 
 WITH quantidade_por_municipio_ano AS (
     SELECT

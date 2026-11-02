@@ -6,6 +6,13 @@
 -- específica. Considera somente registros MU e exige dados nos dois anos.
 -- Lista os vinte maiores aumentos percentuais entre municípios com rendimento
 -- inicial positivo e aumento efetivo.
+-- Grão das CTEs e do resultado:
+-- quantidade_por_municipio_ano: município × ano (2000 ou 2025).
+-- area_colhida_por_municipio_ano: município × ano (2000 ou 2025).
+-- rendimento_por_municipio_ano: município × ano com rendimento calculado.
+-- comparacao: município com dados de rendimento nos dois anos.
+-- variacao: município com rendimento inicial positivo e aumento efetivo.
+-- Resultado final: município entre os 20 maiores aumentos percentuais.
 
 WITH quantidade_por_municipio_ano AS (
     SELECT

@@ -4,6 +4,11 @@
 -- para o periodo de 2000 a 2025. Total a retornar são 7 linhas.
 -- Considerar apenas as linhas de nivel "MU", desconsiderar linhas
 -- de nível "BR".
+-- Grão das CTEs e do resultado:
+-- valores_por_cultura: registro municipal/ano de origem × cultura.
+-- totais_por_municipio: município × cultura, totalizado de 2000 a 2025.
+-- ranking: município × cultura, com posição dentro da cultura.
+-- Resultado final: uma linha por cultura (o município líder).
 
 WITH valores_por_cultura AS (
     SELECT

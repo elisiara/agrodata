@@ -1,6 +1,10 @@
 -- 8. Evolução anual do valor da produção por cultura.
 -- O dataset cobre 2000 a 2025; para 2000, a variação anual é NULL porque
 -- não há ano anterior no intervalo disponível. Valores monetários em mil reais.
+-- Grão das CTEs e do resultado:
+-- valores_anuais: ano × cultura.
+-- evolucao: ano × cultura, com o valor do ano anterior.
+-- Resultado final: ano × cultura.
 
 WITH valores_anuais AS (
     SELECT

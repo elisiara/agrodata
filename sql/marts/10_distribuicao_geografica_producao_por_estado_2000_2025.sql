@@ -1,6 +1,10 @@
 -- 10. Distribuição geográfica da produção agrícola em 2000 e 2025.
 -- Produção medida em toneladas, somando as sete culturas por estado.
 -- Considera registros municipais (MU); BR é excluído para evitar dupla contagem.
+-- Grão das CTEs e do resultado:
+-- producao_por_estado_ano: estado (UF) × ano (2000 ou 2025).
+-- distribuicao: estado × ano, com participação e posição no respectivo ano.
+-- Resultado final: estado (UF) × ano.
 
 WITH producao_por_estado_ano AS (
     SELECT

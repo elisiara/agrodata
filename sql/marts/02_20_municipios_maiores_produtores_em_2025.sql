@@ -9,6 +9,11 @@
 -- A consulta abaixo interpreta o pedido como um ranking apenas para 2025.
 -- Soma as sete culturas de cada município, mantém somente linhas MU e
 -- retorna a quantidade total sem conversão, em toneladas.
+-- Grão das CTEs e do resultado:
+-- valor_por_municipio: município em 2025.
+-- quantidade_por_municipio: município em 2025.
+-- ranking: município em 2025, com posição no ranking nacional.
+-- Resultado final: município entre as 20 primeiras posições.
 
 WITH valor_por_municipio AS (
     SELECT

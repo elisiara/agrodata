@@ -6,6 +6,10 @@
 -- Retorna os totais de área plantada e colhida, a diferença entre elas,
 -- e os percentuais de área colhida e não colhida.
 -- Bucar apenas em linhas de nível "BR", descartar linhas de nível "MU".
+-- Grão das CTEs e do resultado:
+-- area_colhida: total nacional de área colhida em 2025 (uma linha).
+-- area_plantada: total nacional de área plantada em 2025 (uma linha).
+-- Resultado final: total nacional de áreas em 2025 (uma linha).
 
 WITH area_colhida AS (
     SELECT SUM(

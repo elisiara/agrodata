@@ -8,6 +8,12 @@
 -- para o valor que representa o volume total de tonelas colhidas,
 -- uma coluna que representa o valor total de area em hectare de
 -- area colhida.
+-- Grão das CTEs e do resultado:
+-- valor: total nacional do valor da produção em 2025 (uma linha).
+-- quantidade: total nacional produzido em 2025 (uma linha).
+-- area: total nacional de área colhida em 2025 (uma linha).
+-- Resultado final: resumo dos totais nacionais de 2025 (uma linha).
+
 WITH valor AS (
     SELECT SUM(
         COALESCE(algodao_herbaceo_em_caroco, 0)

@@ -1,6 +1,11 @@
 -- 11. Ranking do aumento percentual do rendimento médio por cultura,
 -- comparando 2000 com 2025. Considera somente registros BR.
 -- O rendimento é expresso em quilogramas por hectare.
+-- Grão das CTEs e do resultado:
+-- rendimento_por_cultura_ano: ano × cultura (2000 ou 2025).
+-- comparacao: cultura com dados nos dois anos.
+-- variacao: cultura com rendimentos e variações calculados.
+-- Resultado final: uma linha por cultura.
 
 WITH rendimento_por_cultura_ano AS (
     SELECT

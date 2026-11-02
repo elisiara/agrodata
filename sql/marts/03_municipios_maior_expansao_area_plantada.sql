@@ -8,6 +8,11 @@
 -- A consulta abaixo mede a expansão como a diferença entre a área plantada
 -- em 2025 e 2000, somando as sete culturas em cada município.
 -- Retorna os 10 municípios com crescimento positivo; a área é apresentada em hectares.
+-- Grão das CTEs e do resultado:
+-- area_por_municipio_ano: município × ano (2000 ou 2025).
+-- variacao_por_municipio: município com dados nos dois anos.
+-- expansao: município com aumento de área entre os dois anos.
+-- Resultado final: município entre os 10 maiores aumentos de área.
 
 WITH area_por_municipio_ano AS (
     SELECT

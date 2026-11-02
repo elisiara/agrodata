@@ -6,6 +6,12 @@
 -- facilita a leitura: aproxima quantas culturas teriam pesos iguais para
 -- produzir a mesma concentração. O indicador não mede toda a agricultura
 -- estadual: considera apenas as sete culturas da tabela e valores brutos.
+-- Grão das CTEs e do resultado:
+-- valor_por_estado_cultura: estado (UF) × cultura em 2025.
+-- participacao_por_cultura: estado × cultura, com participação no total estadual.
+-- concentracao_por_estado: estado (UF).
+-- ranking_culturas: estado × cultura, com posição dentro do estado.
+-- Resultado final: estado (UF), com sua cultura de maior valor.
 
 WITH valor_por_estado_cultura AS (
     SELECT

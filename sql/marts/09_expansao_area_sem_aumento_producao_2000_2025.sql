@@ -1,6 +1,12 @@
 -- 9. Municípios onde o aumento da área plantada entre 2000 e 2025
 -- não foi acompanhado por aumento da quantidade produzida.
 -- Soma as sete culturas, considera apenas registros MU e inclui a UF.
+-- Grão das CTEs e do resultado:
+-- area_plantada: município × ano (2000 ou 2025).
+-- quantidade_produzida: município × ano (2000 ou 2025).
+-- totais_comparaveis: município × ano presente nas duas fontes.
+-- comparacao: município com dados comparáveis nos dois anos.
+-- Resultado final: município cuja área aumentou e cuja produção não aumentou.
 
 WITH area_plantada AS (
     SELECT

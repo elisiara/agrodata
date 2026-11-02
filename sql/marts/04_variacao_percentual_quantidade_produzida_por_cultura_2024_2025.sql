@@ -5,6 +5,10 @@
 -- um resultado percentual que represente a variação total da quantidade
 -- produzida da cultura no periodo 2024 a 2025.
 -- Bucar apenas em linhas de nível "BR", descartar linhas de nível "MU"
+-- Grão das CTEs e do resultado:
+-- quantidade_por_cultura: ano × cultura para 2024 e 2025.
+-- totais: uma linha por cultura, com as quantidades dos dois anos.
+-- Resultado final: uma linha por cultura.
 
 WITH quantidade_por_cultura AS (
     SELECT

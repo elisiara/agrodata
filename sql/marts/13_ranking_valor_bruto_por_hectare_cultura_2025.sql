@@ -5,6 +5,12 @@
 -- pois não desconta custos de produção. Considera somente registros MU.
 -- Retorna os dez primeiros municípios em cada cultura e exclui áreas nulas
 -- ou iguais a zero, para que o indicador seja calculável.
+-- Grão das CTEs e do resultado:
+-- valores_por_cultura: município × cultura em 2025.
+-- area_por_cultura: município × cultura em 2025.
+-- indicadores: município × cultura com valor e área correspondentes.
+-- ranking: município × cultura, com posição dentro da cultura.
+-- Resultado final: município entre os 10 primeiros de cada cultura.
 
 WITH valores_por_cultura AS (
     SELECT
