@@ -279,7 +279,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
             "08 · Evolução do valor da produção · Brasil · 2000–2025",
         ),
         grafico_html(
-            painel.grafico_mapa_estados(distribuicao, 2025, "Produção (t)"),
+            painel.grafico_mapa_estados(distribuicao, 2025),
             "g03",
             "10 · Produção agrícola por UF · 2025",
         ),
@@ -389,7 +389,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     <p class="caption">Produção e participação estadual nos anos disponíveis · padrão: 2025.</p>
     {cards_estado}
     <div class="grade">
-      <div><h3>10 · Produção agrícola por UF</h3><p class="caption">Grade esquemática; não representa contornos geográficos.</p>{
+      <div><h3>10 · Produção agrícola por UF</h3><p class="caption">Contornos estaduais: malhas territoriais do IBGE.</p>{
         html_graficos[2]
     }</div>
       <div><h3>10 · Estados com maior participação</h3><p class="caption">2025 · participação nacional e volume produzido</p>{

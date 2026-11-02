@@ -530,24 +530,33 @@ with aba_panorama:
 with aba_estados:
     st.subheader("Distribuição geográfica por estado")
     st.caption("Compare produção e participação estadual nos anos disponíveis.")
-    controles = st.columns(2)
-    with controles[0]:
-        ano_estado = st.selectbox(
-            "Ano",
-            options=(2000, 2025),
-            index=1,
-            key="ano_estados",
-        )
-    with controles[1]:
-        metrica_mapa = st.selectbox(
-            "Métrica do mapa",
-            options=("Produção (t)", "Participação nacional (%)"),
-            key="metrica_mapa",
-        )
-
+    ano_estado = st.selectbox(
+        "Ano",
+        options=(2000, 2025),
+        index=1,
+        key="ano_estados",
+    )
     distribuicao = marts["distribuicao_geografica_producao_por_estado_2000_2025"]
     dados_ano = distribuicao.loc[distribuicao["ano"].eq(ano_estado)]
     lider = dados_ano.sort_values("ranking_no_ano").head(1).iloc[0]
+
+    st.markdown("**10 · Produção agrícola por UF**")
+    st.caption(
+        "Cada estado é colorido pelo volume produzido; passe o cursor "
+        "para ver produção e participação nacional."
+    )
+    st.plotly_chart(
+        painel.grafico_mapa_estados(distribuicao, ano_estado),
+        width="stretch",
+    )
+
+    st.markdown("**10 · Estados com maior participação**")
+    st.caption(f"{ano_estado} · participação nacional e volume produzido")
+    st.plotly_chart(
+        painel.grafico_participacao_estados(dados_ano),
+        width="stretch",
+    )
+
     cards_uf = st.columns(3)
     cards_uf[0].metric("Estado líder", lider["uf"])
     cards_uf[1].metric(
@@ -558,22 +567,6 @@ with aba_estados:
         "Participação nacional",
         painel.pct(lider["participacao_nacional_percentual"], 2),
     )
-
-    mapa_coluna, participacao_coluna = st.columns([1.25, 0.75])
-    with mapa_coluna:
-        st.markdown("**10 · Produção agrícola por UF**")
-        st.caption("Grade esquemática; não representa contornos geográficos.")
-        st.plotly_chart(
-            painel.grafico_mapa_estados(distribuicao, ano_estado, metrica_mapa),
-            width="stretch",
-        )
-    with participacao_coluna:
-        st.markdown("**10 · Estados com maior participação**")
-        st.caption(f"{ano_estado} · participação nacional e volume produzido")
-        st.plotly_chart(
-            painel.grafico_participacao_estados(dados_ano),
-            width="stretch",
-        )
 
     comparacao_coluna, area_coluna = st.columns(2)
     with comparacao_coluna:

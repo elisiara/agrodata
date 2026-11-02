@@ -66,8 +66,8 @@ municípios em 2025, com ordenação e busca.
 
 Aba Distribuição por estado:
 10 oferece somente 2000 ou 2025, sincronizando mapa, barras e tabela. Os cartões
-identificam estado líder, volume e participação. Sem geometria estadual, o mapa
-é uma grade esquemática explicitamente identificada como não geográfica.
+identificam estado líder, volume e participação. O mapa usa os limites estaduais
+do IBGE incluídos em data/brasil_ufs.geojson.
 06 exibe área plantada, área colhida e diferença por UF em 2025. 15 mostra a
 composição das sete culturas da UF selecionada, participação, valor estadual,
 HHI entre 0 e 1 e número efetivo de culturas.
@@ -112,6 +112,7 @@ SELECT * definidos.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -148,35 +149,26 @@ CULTURAS: tuple[str, ...] = (
     "Trigo (em grão)",
 )
 
-UF_COORDENADAS: dict[str, tuple[int, int]] = {
-    "RR": (5, 0),
-    "AP": (7, 1),
-    "AM": (5, 2),
-    "PA": (7, 2),
-    "AC": (3, 3),
-    "RO": (4, 3),
-    "TO": (7, 3),
-    "MA": (8, 3),
-    "PI": (9, 3),
-    "CE": (10, 3),
-    "RN": (11, 3),
-    "PB": (12, 4),
-    "PE": (11, 5),
-    "AL": (12, 5),
-    "SE": (11, 6),
-    "BA": (9, 5),
-    "MT": (6, 4),
-    "GO": (7, 5),
-    "DF": (8, 5),
-    "MS": (5, 5),
-    "MG": (8, 6),
-    "ES": (9, 6),
-    "RJ": (10, 7),
-    "SP": (8, 7),
-    "PR": (7, 8),
-    "SC": (8, 8),
-    "RS": (7, 9),
-}
+GEOJSON_UFS = json.loads(
+    (Path(__file__).parent / "data" / "brasil_ufs.geojson").read_text(
+        encoding="utf-8"
+    )
+)
+# Plotly's spherical projection expects GeoJSON exterior rings clockwise.
+for feature in GEOJSON_UFS["features"]:
+    geometry = feature["geometry"]
+    polygons = (
+        geometry["coordinates"]
+        if geometry["type"] == "MultiPolygon"
+        else [geometry["coordinates"]]
+    )
+    for polygon in polygons:
+        for ring in polygon:
+            ring.reverse()
+
+UFS = tuple(
+    feature["properties"]["uf"] for feature in GEOJSON_UFS["features"]
+)
 
 
 class ErroLeituraMarts(RuntimeError):
@@ -290,60 +282,68 @@ def grafico_evolucao_valor(df: pd.DataFrame) -> go.Figure:
     return _layout(figura, 390)
 
 
-def grafico_mapa_estados(df: pd.DataFrame, ano: int, metrica: str) -> go.Figure:
-    colunas = {
-        "Produção (t)": "quantidade_produzida_toneladas",
-        "Participação nacional (%)": "participacao_nacional_percentual",
-    }
-    coluna_valor = colunas[metrica]
+def grafico_mapa_estados(df: pd.DataFrame, ano: int) -> go.Figure:
     selecionados = df.loc[df["ano"].eq(ano)]
-    ufs: list[str] = []
-    coordenadas: list[tuple[int, int]] = []
-    valores: list[float] = []
-    producoes: list[float] = []
-    participacoes: list[float] = []
-
-    for linha in selecionados.itertuples(index=False):
-        uf = linha.uf
-        if uf in UF_COORDENADAS:
-            ufs.append(uf)
-            coordenadas.append(UF_COORDENADAS[uf])
-            valores.append(getattr(linha, coluna_valor))
-            producoes.append(linha.quantidade_produzida_toneladas)
-            participacoes.append(linha.participacao_nacional_percentual)
+    dados_mapa = selecionados.set_index("uf").reindex(UFS)
+    customdata = dados_mapa[
+        [
+            "quantidade_produzida_toneladas",
+            "participacao_nacional_percentual",
+        ]
+    ].to_numpy()
 
     figura = go.Figure(
-        go.Scatter(
-            x=[coordenada[0] for coordenada in coordenadas],
-            y=[-coordenada[1] for coordenada in coordenadas],
-            mode="markers+text",
-            text=ufs,
-            textposition="middle center",
-            customdata=list(zip(producoes, participacoes, strict=True)),
-            marker={
-                "symbol": "square",
-                "size": 39,
-                "color": valores,
-                "colorscale": "Greens",
-                "showscale": True,
-                "colorbar": {"title": metrica},
-                "line": {"color": "white", "width": 2},
+        go.Choropleth(
+            geojson=GEOJSON_UFS,
+            featureidkey="properties.uf",
+            locations=UFS,
+            z=dados_mapa["quantidade_produzida_toneladas"],
+            customdata=customdata,
+            colorscale=[
+                [0, "#c8ece6"],
+                [0.35, "#81c9c4"],
+                [0.7, "#428e9f"],
+                [1, "#234f70"],
+            ],
+            showscale=True,
+            colorbar={
+                "title": {"text": "Produção (t)", "side": "top"},
+                "thickness": 14,
+                "len": 0.72,
+                "outlinewidth": 0,
+                "tickformat": ",.0f",
+                "tickfont": {"color": "#748178"},
             },
+            marker_line_color="white",
+            marker_line_width=1.1,
             hovertemplate=(
-                "<b>%{text}</b><br>"
+                "<b>%{location}</b><br>"
                 f"Ano: {ano}<br>"
                 "Produção: %{customdata[0]:,.0f} t<br>"
                 "Participação: %{customdata[1]:.2f}%<extra></extra>"
             ),
         )
     )
-    figura.update_xaxes(visible=False, range=(1, 13))
-    figura.update_yaxes(visible=False, range=(-10, 1), scaleanchor="x")
-    figura.update_layout(
-        title="Grade esquemática de UFs — não é um mapa geográfico",
-        showlegend=False,
+    figura.update_geos(
+        fitbounds="geojson",
+        visible=False,
+        projection_type="mercator",
+        domain={"x": [0.02, 0.82], "y": [0.03, 0.97]},
+        showcoastlines=False,
+        showframe=False,
+        showland=False,
+        showlakes=False,
+        showrivers=False,
+        showcountries=False,
     )
-    return _layout(figura, 430)
+    figura.update_traces(
+        hoverlabel={"bgcolor": "#193d2d", "font": {"color": "white"}}
+    )
+    figura.update_layout(
+        showlegend=False,
+        margin={"l": 0, "r": 8, "t": 22, "b": 0},
+    )
+    return _layout(figura, 450)
 
 
 def grafico_participacao_estados(df: pd.DataFrame) -> go.Figure:

@@ -75,7 +75,7 @@ def test_grafico_evolucao_valor_tem_um_ponto_por_linha():
     assert len(figura.data[0].x) == len(df)
 
 
-def test_grafico_mapa_filtra_ano_e_ignora_uf_sem_coordenada():
+def test_grafico_mapa_exibe_todas_as_ufs_e_dados_apenas_no_hover():
     df = pd.DataFrame(
         {
             "uf": ["SP", "MG", "XX"],
@@ -85,11 +85,33 @@ def test_grafico_mapa_filtra_ano_e_ignora_uf_sem_coordenada():
         }
     )
 
-    figura = painel.grafico_mapa_estados(df, 2025, "Produção (t)")
+    figura = painel.grafico_mapa_estados(df, 2025)
 
     assert isinstance(figura, go.Figure)
-    assert list(figura.data[0].text) == ["SP", "MG"]
-    assert list(figura.data[0].marker.color) == [100, 50]
+    assert isinstance(figura.data[0], go.Choropleth)
+    assert len(figura.data[0].locations) == 27
+    assert figura.data[0].z[painel.UFS.index("SP")] == 100
+    assert figura.data[0].z[painel.UFS.index("MG")] == 50
+    assert list(figura.data[0].customdata[painel.UFS.index("SP")]) == [100, 60]
+    assert list(figura.data[0].customdata[painel.UFS.index("MG")]) == [50, 30]
+    assert figura.data[0].featureidkey == "properties.uf"
+    assert len(figura.data[0].geojson["features"]) == 27
+    assert figura.data[0].showscale is True
+    assert figura.data[0].colorbar.title.text == "Produção (t)"
+    assert "Participação" in figura.data[0].hovertemplate
+    assert figura.layout.geo.fitbounds == "geojson"
+    primeiro_estado = figura.data[0].geojson["features"][0]["geometry"]
+    anel_externo = (
+        primeiro_estado["coordinates"][0]
+        if primeiro_estado["type"] == "Polygon"
+        else primeiro_estado["coordinates"][0][0]
+    )
+    area_assinada = sum(
+        anel_externo[indice][0] * anel_externo[indice + 1][1]
+        - anel_externo[indice + 1][0] * anel_externo[indice][1]
+        for indice in range(len(anel_externo) - 1)
+    )
+    assert area_assinada < 0
 
 
 def test_grafico_participacao_estados_representa_todas_as_ufs():
