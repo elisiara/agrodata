@@ -540,22 +540,25 @@ with aba_estados:
     dados_ano = distribuicao.loc[distribuicao["ano"].eq(ano_estado)]
     lider = dados_ano.sort_values("ranking_no_ano").head(1).iloc[0]
 
-    st.markdown("**10 · Produção agrícola por UF**")
-    st.caption(
-        "Cada estado é colorido pelo volume produzido; passe o cursor "
-        "para ver produção e participação nacional."
-    )
-    st.plotly_chart(
-        painel.grafico_mapa_estados(distribuicao, ano_estado),
-        width="stretch",
-    )
+    mapa_coluna, participacao_coluna = st.columns([1.25, 0.75])
+    with mapa_coluna:
+        st.markdown("**10 · Produção agrícola por UF**")
+        st.caption(
+            "Cada estado é colorido pelo volume produzido; passe o cursor "
+            "para ver produção e participação nacional."
+        )
+        st.plotly_chart(
+            painel.grafico_mapa_estados(distribuicao, ano_estado),
+            width="stretch",
+        )
 
-    st.markdown("**10 · Estados com maior participação**")
-    st.caption(f"{ano_estado} · participação nacional e volume produzido")
-    st.plotly_chart(
-        painel.grafico_participacao_estados(dados_ano),
-        width="stretch",
-    )
+    with participacao_coluna:
+        st.markdown("**10 · Estados com maior participação**")
+        st.caption(f"{ano_estado} · participação nacional e volume produzido")
+        st.plotly_chart(
+            painel.grafico_participacao_estados(dados_ano),
+            width="stretch",
+        )
 
     cards_uf = st.columns(3)
     cards_uf[0].metric("Estado líder", lider["uf"])
