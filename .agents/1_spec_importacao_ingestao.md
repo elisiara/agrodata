@@ -1,5 +1,4 @@
 CONTEXTO
-**Status:** especificação para implementação; ainda não implementada.
 **Fontes:**
   =>IBGE, Pesquisa Agrícola Municipal (PAM), tabela SIDRA 5457. Área plantada ou destinada à colheita, área colhida, quantidade produzida, rendimento médio e valor da produção das lavouras temporárias e permanentes.
     Filtros aplicados:
