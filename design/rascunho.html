@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgroData | Rascunho do dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d3028;
+      --muted: #748178;
+      --line: #e6ebe5;
+      --paper: #f5f7f3;
+      --card: #fff;
+      --green: #23734d;
+      --green-dark: #174e36;
+      --green-soft: #e7f2e9;
+      --lime: #b7d77a;
+      --gold: #d29d42;
+      --red: #c65a4a;
+      --shadow: 0 10px 28px #203b2b0b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { margin: 0; color: var(--ink); background: var(--paper); }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh; padding: 27px 18px;
+      display: flex; flex-direction: column; color: #eaf3eb; background: #193d2d;
+    }
+    .brand { display: flex; gap: 11px; align-items: center; padding: 4px 8px 29px; }
+    .brand-mark {
+      display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px;
+      color: #183c2b; background: #c8df9b; font-size: 20px; font-weight: 800;
+    }
+    .brand strong { display: block; font-size: 16px; letter-spacing: -.3px; }
+    .brand small { color: #a9c5b3; font-size: 11px; }
+    .side-label { margin: 12px 9px 10px; color: #8fab98; font-size: 10px; font-weight: 750; letter-spacing: 1.3px; text-transform: uppercase; }
+    .nav-tabs { display: grid; gap: 5px; }
+    .nav-tab {
+      display: flex; align-items: center; gap: 11px; width: 100%; padding: 12px 11px;
+      border: 0; border-radius: 10px; color: #c7d9cd; background: transparent;
+      text-align: left; font-size: 12px; font-weight: 650;
+    }
+    .nav-tab:hover, .nav-tab.active { color: #fff; background: #ffffff17; }
+    .nav-tab.active { box-shadow: inset 3px 0 #c8df9b; }
+    .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+    .side-bottom { margin-top: auto; padding: 13px 10px 0; border-top: 1px solid #ffffff20; color: #9db8a6; font-size: 10px; line-height: 1.65; }
+
+    .main { min-width: 0; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 24px 34px 15px; }
+    .eyebrow { color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: 1.15px; text-transform: uppercase; }
+    h1 { margin: 4px 0 0; font-size: clamp(20px, 2.2vw, 28px); letter-spacing: -1px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .badge, .control {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid var(--line);
+      border-radius: 9px; color: #506157; background: #fff; font-size: 11px;
+    }
+    .badge { color: #876321; background: #fff8e9; border-color: #f1e2bd; }
+    .sticky-area {
+      position: sticky; top: 0; z-index: 5; padding: 0 34px 12px;
+      background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(12px);
+    }
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .kpi {
+      min-width: 0; padding: 14px 16px 13px; border: 1px solid var(--line); border-radius: 13px;
+      background: var(--card); box-shadow: 0 5px 15px #203b2b05;
+    }
+    .kpi-label { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 10px; font-weight: 650; }
+    .kpi-icon { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; color: var(--green); background: var(--green-soft); font-size: 13px; }
+    .kpi-value { margin-top: 9px; font-size: clamp(18px, 2vw, 24px); font-weight: 780; letter-spacing: -.7px; }
+    .kpi-foot { margin-top: 3px; color: #89938c; font-size: 9px; }
+    .tabs {
+      display: flex; gap: 4px; overflow-x: auto; margin-top: 12px; padding: 5px;
+      border: 1px solid var(--line); border-radius: 11px; background: #fff;
+    }
+    .tab {
+      flex: 0 0 auto; padding: 9px 13px; border: 0; border-radius: 7px; color: #68746c;
+      background: transparent; font-size: 11px; font-weight: 700;
+    }
+    .tab:hover { color: var(--green); background: #f3f7f1; }
+    .tab.active { color: #fff; background: var(--green); }
+
+    .content { padding: 7px 34px 36px; }
+    .page { display: none; }
+    .page.active { display: block; animation: appear .18s ease-out; }
+    @keyframes appear { from { opacity: .6; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+    .page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 15px; margin: 12px 0 17px; }
+    .page-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.5px; }
+    .page-heading p { max-width: 720px; margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .grid { display: grid; gap: 14px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { min-width: 0; padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); box-shadow: var(--shadow); }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 13px; }
+    .card h3 { margin: 0; font-size: 13px; letter-spacing: -.15px; }
+    .card-sub { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .tag { flex: 0 0 auto; padding: 5px 8px; border-radius: 20px; color: #66776b; background: #f1f5f0; font-size: 9px; font-weight: 700; }
+    .sample-note { margin: 0 0 13px; padding: 8px 10px; border: 1px solid #f0e2bf; border-radius: 8px; color: #81652e; background: #fff9eb; font-size: 9px; }
+    .section-label { margin: 20px 0 10px; color: #728078; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+    .mini-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .mini-kpi { padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+    .mini-kpi span { display: block; color: var(--muted); font-size: 9px; }
+    .mini-kpi strong { display: block; margin-top: 6px; font-size: 17px; letter-spacing: -.4px; }
+
+    .donut-wrap { display: flex; align-items: center; justify-content: center; gap: 28px; min-height: 205px; }
+    .donut {
+      display: grid; place-items: center; width: 154px; height: 154px; flex: 0 0 auto; border-radius: 50%;
+      background: conic-gradient(var(--green) 0 82.4%, #e8c879 82.4% 100%);
+    }
+    .donut-hole { display: grid; place-items: center; width: 105px; height: 105px; border-radius: 50%; background: #fff; text-align: center; }
+    .donut-hole strong { font-size: 22px; }
+    .donut-hole small { color: var(--muted); font-size: 9px; }
+    .legend { display: grid; gap: 13px; }
+    .legend-row { display: flex; align-items: center; gap: 8px; color: #536057; font-size: 10px; }
+    .legend-row strong { margin-left: auto; padding-left: 12px; color: var(--ink); }
+    .swatch { width: 9px; height: 9px; border-radius: 3px; background: var(--green); }
+    .swatch.gold { background: #e8c879; }
+
+    .chart { width: 100%; height: auto; overflow: visible; }
+    .chart text { fill: #879188; font-size: 9px; font-family: inherit; }
+    .chart .gridline { stroke: #edf0ec; stroke-width: 1; }
+    .chart .axis { stroke: #cfd7d0; stroke-width: 1; }
+    .chart .line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .chart .dot { stroke: #fff; stroke-width: 2; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 5px 0 0 34px; }
+    .chart-legend span { display: flex; align-items: center; gap: 5px; color: #657168; font-size: 9px; }
+    .chart-legend i { width: 8px; height: 8px; border-radius: 50%; }
+
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th { padding: 9px 10px; color: #7d8980; background: #f7f9f6; text-align: left; font-size: 9px; font-weight: 750; }
+    td { padding: 10px; border-bottom: 1px solid #edf0ed; color: #425148; font-size: 10px; }
+    tr:last-child td { border-bottom: 0; }
+    td.numeric, th.numeric { text-align: right; font-variant-numeric: tabular-nums; }
+    .rank { display: inline-grid; place-items: center; width: 21px; height: 21px; border-radius: 7px; color: #496052; background: #eff4ef; font-size: 9px; font-weight: 750; }
+    .uf { display: inline-grid; place-items: center; min-width: 25px; padding: 3px 5px; border-radius: 5px; color: var(--green-dark); background: var(--green-soft); font-size: 9px; font-weight: 800; }
+    .positive { color: var(--green); font-weight: 750; }
+    .negative { color: var(--red); font-weight: 750; }
+
+    .map-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(245px, .65fr); gap: 14px; }
+    .map-tiles {
+      display: grid; grid-template-columns: repeat(10, minmax(28px, 1fr)); grid-template-rows: repeat(8, 39px);
+      gap: 5px; align-items: stretch; padding: 12px 4px 6px;
+    }
+    .state-tile {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      border: 1px solid #ffffff; border-radius: 6px; color: #17432f; background: #dcebd8;
+      box-shadow: 0 1px 3px #183d2d12; font-size: 9px; font-weight: 800;
+    }
+    .state-tile small { color: #526b59; font-size: 7px; font-weight: 600; }
+    .state-tile:hover, .state-tile.selected { outline: 2px solid var(--green-dark); outline-offset: 1px; }
+    .map-legend { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 8px 4px 0; color: var(--muted); font-size: 9px; }
+    .scale { display: flex; width: 100px; height: 8px; border-radius: 8px; background: linear-gradient(90deg, #edf5e9, #a9cf9c, #3f855b); }
+    .bar-list { display: grid; gap: 12px; }
+    .bar-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) 66px; align-items: center; gap: 8px; }
+    .bar-row .label { color: #536057; font-size: 9px; font-weight: 750; }
+    .bar-track { height: 9px; overflow: hidden; border-radius: 8px; background: #eef2ed; }
+    .bar-fill { height: 100%; border-radius: inherit; background: #4a9367; }
+    .bar-value { color: #48584d; text-align: right; font-size: 9px; font-variant-numeric: tabular-nums; }
+
+    .culture-bars { display: grid; gap: 12px; }
+    .culture-bar { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(100px, 3fr) 58px; align-items: center; gap: 10px; }
+    .culture-bar .label { overflow: hidden; color: #56635a; font-size: 10px; text-overflow: ellipsis; }
+    .culture-bar .bar-track { height: 12px; }
+    .culture-bar .bar-fill { background: #6ea778; }
+    .culture-bar .bar-value { font-weight: 750; }
+    .alert-box { padding: 11px 12px; border-left: 3px solid var(--gold); border-radius: 6px; color: #765a26; background: #fff9eb; font-size: 10px; line-height: 1.5; }
+    .ranking-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 11px; }
+    .ranking-tabs { display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: #f1f4f0; }
+    .ranking-tabs button { padding: 7px 9px; border: 0; border-radius: 6px; color: #68746c; background: transparent; font-size: 9px; font-weight: 700; }
+    .ranking-tabs button.active { color: var(--green-dark); background: #fff; box-shadow: 0 1px 3px #203b2b12; }
+    .ranking-panel { display: none; }
+    .ranking-panel.active { display: block; }
+
+    .dumbbell { display: grid; gap: 14px; margin-top: 4px; }
+    .dumb-row { display: grid; grid-template-columns: minmax(105px, 1.1fr) minmax(130px, 2fr) 58px; align-items: center; gap: 9px; }
+    .dumb-name { overflow: hidden; color: #526057; font-size: 9px; text-overflow: ellipsis; }
+    .dumb-track { position: relative; height: 18px; }
+    .dumb-track:before { position: absolute; top: 8px; right: 8px; left: 8px; height: 2px; background: #dfe6df; content: ""; }
+    .dumb-range { position: absolute; top: 8px; height: 2px; background: #7aaa77; }
+    .dumb-dot { position: absolute; top: 3px; width: 11px; height: 11px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #8da78f; }
+    .dumb-dot.old { background: #b5c3b6; }
+    .dumb-dot.new { background: var(--green); box-shadow: 0 0 0 1px var(--green); }
+    .dumb-delta { color: var(--green); text-align: right; font-size: 9px; font-weight: 800; }
+    .dumb-legend { display: flex; gap: 14px; margin: 12px 0 0 115px; color: var(--muted); font-size: 9px; }
+    .dumb-legend span { display: flex; align-items: center; gap: 5px; }
+    .dumb-legend i { width: 8px; height: 8px; border-radius: 50%; background: #b5c3b6; }
+    .dumb-legend .new-dot { background: var(--green); }
+    .value-label { display: flex; justify-content: space-between; margin: 7px 0 0 115px; color: #89938c; font-size: 8px; }
+    .note { margin-top: 11px; color: #89938c; font-size: 9px; line-height: 1.5; }
+
+    @media (max-width: 1050px) {
+      .shell { grid-template-columns: 190px minmax(0, 1fr); }
+      .topbar, .sticky-area { padding-right: 20px; padding-left: 20px; }
+      .content { padding-right: 20px; padding-left: 20px; }
+      .grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .shell { display: block; }
+      .sidebar { position: static; width: 100%; height: auto; padding: 11px 14px; }
+      .brand { padding: 0 2px 9px; }
+      .brand-mark { width: 31px; height: 31px; }
+      .side-label, .side-bottom { display: none; }
+      .nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
+      .nav-tab { flex: 0 0 auto; width: auto; padding: 9px 10px; font-size: 10px; }
+      .nav-tab.active { box-shadow: inset 0 -2px #c8df9b; }
+      .nav-icon { display: none; }
+      .topbar { padding: 16px 14px 11px; }
+      .top-actions .badge { display: none; }
+      .sticky-area { padding: 0 14px 9px; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+      .kpi { padding: 10px; }
+      .kpi-foot { font-size: 8px; }
+      .tabs { margin-top: 8px; }
+      .tab { padding: 8px 10px; }
+      .content { padding: 6px 14px 24px; }
+      .grid.two, .grid.three, .map-layout { grid-template-columns: 1fr; }
+      .mini-kpis { gap: 6px; }
+      .mini-kpi { padding: 9px; }
+      .mini-kpi strong { font-size: 14px; }
+      .map-tiles { grid-template-rows: repeat(8, 33px); gap: 3px; }
+      .donut-wrap { gap: 16px; }
+      .donut { width: 130px; height: 130px; }
+      .donut-hole { width: 88px; height: 88px; }
+      .dumb-row { grid-template-columns: 93px minmax(100px, 1fr) 45px; gap: 5px; }
+      .dumb-legend, .value-label { margin-left: 98px; }
+    }
+    @media (max-width: 400px) {
+      .kpi-value { font-size: 17px; }
+      .kpi-label { font-size: 9px; }
+      .map-tiles { grid-template-columns: repeat(9, minmax(25px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div><strong>AgroData</strong><small>PAM · IBGE SIDRA 5457</small></div>
+      </div>
+      <div class="side-label">Painéis</div>
+      <nav class="nav-tabs" aria-label="Seções do dashboard">
+        <button class="nav-tab active" data-page="panorama"><span class="nav-icon">◫</span>Panorama nacional</button>
+        <button class="nav-tab" data-page="estados"><span class="nav-icon">⌖</span>Estados</button>
+        <button class="nav-tab" data-page="municipios"><span class="nav-icon">↗</span>Expansão municipal</button>
+        <button class="nav-tab" data-page="produtividade"><span class="nav-icon">⌁</span>Produtividade e valor/ha</button>
+      </nav>
+      <div class="side-bottom">Fonte: Pesquisa Agrícola Municipal (PAM)<br>Período disponível: 2000–2025<br><br>Rascunho visual · dados demonstrativos</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Painel de inteligência agrícola</div>
+          <h1>Produção agrícola brasileira</h1>
+        </div>
+        <div class="top-actions">
+          <span class="badge">◉ Dados ilustrativos</span>
+          <button class="control" type="button">Brasil&nbsp;⌄</button>
+        </div>
+      </header>
+
+      <div class="sticky-area">
+        <section class="kpis" aria-label="Indicadores nacionais de 2025">
+          <article class="kpi">
+            <div class="kpi-label">Valor da produção <span class="kpi-icon">R$</span></div>
+            <div class="kpi-value">R$ 604,8 bi</div>
+            <div class="kpi-foot">2025 · mil R$ convertidos para bi R$</div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-label">Quantidade produzida <span class="kpi-icon">▤</span></div>
+            <div class="kpi-value">1.247,6 mi t</div>
+            <div class="kpi-foot">2025 · soma das 7 culturas</div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-label">Área colhida <span class="kpi-icon">▦</span></div>
+            <div class="kpi-value">92,3 mi ha</div>
+            <div class="kpi-foot">2025 · área total colhida</div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-label">Rendimento médio <span class="kpi-icon">↗</span></div>
+            <div class="kpi-value">13,5 t/ha</div>
+            <div class="kpi-foot">2025 · média ponderada nacional</div>
+          </article>
+        </section>
+        <nav class="tabs" aria-label="Abas de conteúdo">
+          <button class="tab active" data-page="panorama">Panorama</button>
+          <button class="tab" data-page="estados">Distribuição por estado</button>
+          <button class="tab" data-page="municipios">Expansão e rankings</button>
+          <button class="tab" data-page="produtividade">Produtividade e valor/ha</button>
+        </nav>
+      </div>
+
+      <div class="content">
+        <section class="page active" id="panorama">
+          <div class="page-heading">
+            <div><h2>Panorama da produção agrícola</h2><p>Indicadores nacionais de 2025 e evolução das sete culturas acompanhadas pela PAM.</p></div>
+            <span class="control">Ano-base&nbsp; 2025&nbsp;⌄</span>
+          </div>
+          <div class="sample-note">Valores e séries deste rascunho são fictícios e servem apenas para demonstrar a composição da tela. Substituir pelo resultado real das consultas SQL.</div>
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head"><div><h3>Área plantada: colhida × não colhida</h3><div class="card-sub">Percentual da área plantada nacional em 2025</div></div><span class="tag">05 · Brasil</span></div>
+              <div class="donut-wrap">
+                <div class="donut"><div class="donut-hole"><div><strong>82,4%</strong><br><small>colhida</small></div></div></div>
+                <div class="legend">
+                  <div class="legend-row"><i class="swatch"></i>Área colhida<strong>82,4%</strong></div>
+                  <div class="legend-row"><i class="swatch gold"></i>Não colhida<strong>17,6%</strong></div>
+                  <div class="note">As duas parcelas são complementares e fecham 100%.</div>
+                </div>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Evolução do valor da produção</h3><div class="card-sub">Brasil · 2000 a 2025 · mil R$</div></div><span class="tag">08 · Série anual</span></div>
+              <svg class="chart" viewBox="0 0 560 220" role="img" aria-label="Gráfico ilustrativo da evolução do valor da produção por cultura">
+                <line class="gridline" x1="48" y1="28" x2="545" y2="28"/><line class="gridline" x1="48" y1="75" x2="545" y2="75"/>
+                <line class="gridline" x1="48" y1="122" x2="545" y2="122"/><line class="gridline" x1="48" y1="169" x2="545" y2="169"/>
+                <line class="axis" x1="48" y1="15" x2="48" y2="175"/><line class="axis" x1="48" y1="175" x2="545" y2="175"/>
+                <text x="7" y="31">80 bi</text><text x="7" y="78">60 bi</text><text x="7" y="125">40 bi</text><text x="7" y="172">20 bi</text>
+                <text x="45" y="195">2000</text><text x="168" y="195">2006</text><text x="292" y="195">2012</text><text x="416" y="195">2018</text><text x="520" y="195">2025</text>
+                <polyline class="line" stroke="#23734d" points="50,163 88,156 128,148 168,146 208,133 248,125 288,111 328,103 368,88 408,80 448,64 488,53 538,32"/>
+                <polyline class="line" stroke="#d29d42" points="50,168 88,166 128,163 168,161 208,156 248,151 288,145 328,138 368,132 408,124 448,117 488,108 538,98"/>
+                <polyline class="line" stroke="#5d82a1" points="50,170 88,168 128,165 168,164 208,161 248,157 288,151 328,149 368,143 408,139 448,133 488,128 538,120"/>
+                <polyline class="line" stroke="#9a72a6" points="50,171 88,169 128,168 168,165 208,164 248,160 288,159 328,153 368,150 408,148 448,144 488,140 538,135"/>
+              </svg>
+              <div class="chart-legend">
+                <span><i style="background:#23734d"></i>Soja</span><span><i style="background:#d29d42"></i>Milho</span>
+                <span><i style="background:#5d82a1"></i>Café</span><span><i style="background:#9a72a6"></i>Arroz</span>
+                <span>+ 3 culturas · seletor no painel final</span>
+              </div>
+            </article>
+          </div>
+          <div class="section-label">Municípios em destaque</div>
+          <article class="card">
+            <div class="ranking-head">
+              <div><h3>Ranking municipal por valor da produção</h3><div class="card-sub">Escolha entre líderes históricos por cultura ou maiores produtores em 2025.</div></div>
+              <div class="ranking-tabs" role="tablist">
+                <button class="active" data-ranking="leader-table">Líder por cultura · 2000–25</button>
+                <button data-ranking="top20-table">Top 20 · 2025</button>
+              </div>
+            </div>
+            <div class="ranking-panel active" id="leader-table">
+              <div class="table-wrap"><table>
+                <thead><tr><th>#</th><th>Cultura</th><th>Município líder</th><th>UF</th><th class="numeric">Valor total (mil R$)</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="rank">1</span></td><td>Soja</td><td>Sorriso</td><td><span class="uf">MT</span></td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">1</span></td><td>Milho</td><td>Sorriso</td><td><span class="uf">MT</span></td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">1</span></td><td>Café</td><td>Patrocínio</td><td><span class="uf">MG</span></td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">1</span></td><td>Arroz</td><td>Uruguaiana</td><td><span class="uf">RS</span></td><td class="numeric">—</td></tr>
+                </tbody>
+              </table></div>
+              <div class="note">Prévia de layout; preencher as sete culturas com o resultado da consulta 01.</div>
+            </div>
+            <div class="ranking-panel" id="top20-table">
+              <div class="table-wrap"><table>
+                <thead><tr><th>Posição</th><th>Município</th><th>UF</th><th class="numeric">Valor (mil R$)</th><th class="numeric">Quantidade (t)</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="rank">1</span></td><td>Sorriso</td><td><span class="uf">MT</span></td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">2</span></td><td>São Desidério</td><td><span class="uf">BA</span></td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">3</span></td><td>Rio Verde</td><td><span class="uf">GO</span></td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">4</span></td><td>Formosa do Rio Preto</td><td><span class="uf">BA</span></td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                </tbody>
+              </table></div>
+              <div class="note">Prévia de layout; tabela completa exibe as 20 linhas da consulta 02.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="page" id="estados">
+          <div class="page-heading">
+            <div><h2>Distribuição geográfica por estado</h2><p>Compare a quantidade produzida e a participação de cada UF no total nacional.</p></div>
+            <label class="control">Ano do mapa&nbsp;
+              <select id="map-year" aria-label="Ano do mapa"><option>2025</option><option>2000</option></select>
+            </label>
+          </div>
+          <div class="sample-note">Valores do mapa e dos gráficos são ilustrativos. A consulta 10 retorna 2000 e 2025; as UFs estão em grade esquemática, não em contornos geográficos.</div>
+          <div class="mini-kpis">
+            <div class="mini-kpi"><span>Estado líder · exemplo</span><strong id="leader-state">MT · 18,2%</strong></div>
+            <div class="mini-kpi"><span>Produção no estado líder</span><strong>— t</strong></div>
+            <div class="mini-kpi"><span>Participação nacional</span><strong>— %</strong></div>
+          </div>
+          <div class="map-layout">
+            <article class="card">
+              <div class="card-head"><div><h3>Produção agrícola por UF</h3><div class="card-sub">Passe o cursor ou selecione uma UF para ver o volume e a participação.</div></div><span class="tag">10 · 2000 e 2025</span></div>
+              <div class="map-tiles" aria-label="Mapa esquemático do Brasil por estado">
+                <button class="state-tile" style="grid-area:1/5" data-uf="RR">RR<small>2,1%</small></button>
+                <button class="state-tile" style="grid-area:2/4" data-uf="AP">AP<small>0,3%</small></button>
+                <button class="state-tile" style="grid-area:2/5" data-uf="AM">AM<small>1,2%</small></button>
+                <button class="state-tile" style="grid-area:3/3" data-uf="AC">AC<small>0,4%</small></button>
+                <button class="state-tile" style="grid-area:3/4" data-uf="RO">RO<small>2,0%</small></button>
+                <button class="state-tile" style="grid-area:3/5" data-uf="PA">PA<small>3,6%</small></button>
+                <button class="state-tile" style="grid-area:3/6" data-uf="TO">TO<small>2,5%</small></button>
+                <button class="state-tile" style="grid-area:3/7" data-uf="MA">MA<small>2,2%</small></button>
+                <button class="state-tile" style="grid-area:4/5" data-uf="MT">MT<small>18,2%</small></button>
+                <button class="state-tile" style="grid-area:4/6" data-uf="PI">PI<small>1,0%</small></button>
+                <button class="state-tile" style="grid-area:4/7" data-uf="CE">CE<small>0,5%</small></button>
+                <button class="state-tile" style="grid-area:4/8" data-uf="RN">RN<small>0,2%</small></button>
+                <button class="state-tile" style="grid-area:4/9" data-uf="PB">PB<small>0,2%</small></button>
+                <button class="state-tile" style="grid-area:5/4" data-uf="MS">MS<small>3,0%</small></button>
+                <button class="state-tile" style="grid-area:5/5" data-uf="GO">GO<small>8,7%</small></button>
+                <button class="state-tile" style="grid-area:5/6" data-uf="BA">BA<small>7,9%</small></button>
+                <button class="state-tile" style="grid-area:5/8" data-uf="PE">PE<small>0,7%</small></button>
+                <button class="state-tile" style="grid-area:5/9" data-uf="AL">AL<small>0,3%</small></button>
+                <button class="state-tile" style="grid-area:5/10" data-uf="SE">SE<small>0,2%</small></button>
+                <button class="state-tile" style="grid-area:6/5" data-uf="MG">MG<small>9,1%</small></button>
+                <button class="state-tile" style="grid-area:6/6" data-uf="ES">ES<small>0,8%</small></button>
+                <button class="state-tile" style="grid-area:6/7" data-uf="RJ">RJ<small>0,3%</small></button>
+                <button class="state-tile" style="grid-area:6/8" data-uf="SP">SP<small>8,0%</small></button>
+                <button class="state-tile" style="grid-area:7/4" data-uf="PR">PR<small>8,9%</small></button>
+                <button class="state-tile" style="grid-area:7/5" data-uf="SC">SC<small>2,0%</small></button>
+                <button class="state-tile" style="grid-area:7/6" data-uf="RS">RS<small>7,1%</small></button>
+                <button class="state-tile" style="grid-area:5/3" data-uf="DF">DF<small>0,1%</small></button>
+              </div>
+              <div class="map-legend"><span>Menor participação</span><i class="scale"></i><span>Maior participação</span></div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Maiores participações</h3><div class="card-sub">Ordenação por produção total no ano selecionado</div></div><span class="tag">t · % nacional</span></div>
+              <div class="bar-list">
+                <div class="bar-row"><span class="label">MT</span><div class="bar-track"><div class="bar-fill" style="width:92%"></div></div><span class="bar-value">18,2%</span></div>
+                <div class="bar-row"><span class="label">MG</span><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><span class="bar-value">9,1%</span></div>
+                <div class="bar-row"><span class="label">PR</span><div class="bar-track"><div class="bar-fill" style="width:56%"></div></div><span class="bar-value">8,9%</span></div>
+                <div class="bar-row"><span class="label">GO</span><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div><span class="bar-value">8,7%</span></div>
+                <div class="bar-row"><span class="label">SP</span><div class="bar-track"><div class="bar-fill" style="width:51%"></div></div><span class="bar-value">8,0%</span></div>
+                <div class="bar-row"><span class="label">BA</span><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div><span class="bar-value">7,9%</span></div>
+                <div class="bar-row"><span class="label">RS</span><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div><span class="bar-value">7,1%</span></div>
+              </div>
+            </article>
+          </div>
+          <div class="section-label">Comparativos e composição estadual</div>
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head"><div><h3>Produção por UF · comparação</h3><div class="card-sub">Barras agrupadas · volume em toneladas ou participação</div></div><span class="tag">10</span></div>
+              <div class="bar-list">
+                <div class="bar-row"><span class="label">MT</span><div class="bar-track"><div class="bar-fill" style="width:92%"></div></div><span class="bar-value">18,2% · 25</span></div>
+                <div class="bar-row"><span class="label">MG</span><div class="bar-track"><div class="bar-fill" style="width:58%;opacity:.48"></div></div><span class="bar-value">9,1% · 25</span></div>
+                <div class="bar-row"><span class="label">PR</span><div class="bar-track"><div class="bar-fill" style="width:56%;opacity:.75"></div></div><span class="bar-value">8,9% · 25</span></div>
+                <div class="bar-row"><span class="label">GO</span><div class="bar-track"><div class="bar-fill" style="width:55%;opacity:.55"></div></div><span class="bar-value">8,7% · 25</span></div>
+              </div>
+              <div class="note">Use agrupamento ou alternância de ano para comparar 2000 e 2025.</div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Área plantada versus colhida por UF</h3><div class="card-sub">Diferença absoluta em hectares · 2025</div></div><span class="tag">06 · 2025</span></div>
+              <div class="table-wrap"><table>
+                <thead><tr><th>UF</th><th class="numeric">Plantada (ha)</th><th class="numeric">Colhida (ha)</th><th class="numeric">Diferença (ha)</th></tr></thead>
+                <tbody><tr><td><span class="uf">MT</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="uf">RS</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="uf">PR</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td></tr></tbody>
+              </table></div>
+              <div class="note">Ordenar pela maior diferença para destacar as UFs com mais área não colhida.</div>
+            </article>
+            <article class="card" style="grid-column:1/-1">
+              <div class="card-head"><div><h3>Composição do valor por cultura e UF</h3><div class="card-sub">Seletor de estado → pizza com participações das sete culturas; parcelas somam 100% dentro da UF.</div></div><span class="tag">15 · 2025</span></div>
+              <div class="grid two">
+                <div class="donut-wrap" style="min-height:145px">
+                  <div class="donut" style="width:122px;height:122px;background:conic-gradient(#23734d 0 42%,#d29d42 42% 70%,#5d82a1 70% 83%,#9a72a6 83% 91%,#b5cc78 91% 96%,#de8d69 96% 99%,#d5ded2 99% 100%)">
+                    <div class="donut-hole" style="width:82px;height:82px"><div><strong style="font-size:16px">MT</strong><br><small>UF selecionada</small></div></div>
+                  </div>
+                  <div class="legend">
+                    <div class="legend-row"><i class="swatch"></i>Soja<strong>42%</strong></div>
+                    <div class="legend-row"><i class="swatch gold"></i>Milho<strong>28%</strong></div>
+                    <div class="legend-row"><i class="swatch" style="background:#5d82a1"></i>Algodão<strong>13%</strong></div>
+                  </div>
+                </div>
+                <div class="mini-kpis">
+                  <div class="mini-kpi"><span>Valor total estadual</span><strong>— mil R$</strong></div>
+                  <div class="mini-kpi"><span>HHI · concentração</span><strong>0,27</strong></div>
+                  <div class="mini-kpi"><span>Nº efetivo de culturas</span><strong>3,7</strong></div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="section-label">Ranking estadual</div>
+          <article class="card">
+            <div class="card-head"><div><h3>Estados por produção e participação nacional</h3><div class="card-sub">Tabela ordenável · posição e destaque de liderança por ano</div></div><span class="tag">10 · UF × ano</span></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Posição</th><th>UF</th><th>Ano</th><th class="numeric">Produção (t)</th><th class="numeric">Participação</th><th>Destaque</th></tr></thead>
+              <tbody><tr><td><span class="rank">1</span></td><td><span class="uf">MT</span></td><td>2025</td><td class="numeric">—</td><td class="numeric">—</td><td>Maior produtor</td></tr>
+                <tr><td><span class="rank">2</span></td><td><span class="uf">MG</span></td><td>2025</td><td class="numeric">—</td><td class="numeric">—</td><td>—</td></tr>
+                <tr><td><span class="rank">3</span></td><td><span class="uf">PR</span></td><td>2025</td><td class="numeric">—</td><td class="numeric">—</td><td>—</td></tr></tbody>
+            </table></div>
+          </article>
+        </section>
+
+        <section class="page" id="municipios">
+          <div class="page-heading">
+            <div><h2>Expansão, produtividade e rankings municipais</h2><p>Encontre onde a área e a produção mais cresceram — e onde a expansão não se converteu em maior produção.</p></div>
+            <span class="control">Período&nbsp; 2000 → 2025&nbsp;⌄</span>
+          </div>
+          <div class="sample-note">Resultados demonstrativos. Rankings e indicadores abaixo representam a estrutura prevista das consultas; substituir pelos dados reais.</div>
+          <div class="mini-kpis">
+            <div class="mini-kpi"><span>Maior expansão de área · município</span><strong>— ha</strong></div>
+            <div class="mini-kpi"><span>Maior aumento de produção</span><strong>— t</strong></div>
+            <div class="mini-kpi"><span>Maior aumento de rendimento</span><strong>— %</strong></div>
+          </div>
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head"><div><h3>Variação da produção por cultura</h3><div class="card-sub">2024 → 2025 · percentual de variação nacional</div></div><span class="tag">04</span></div>
+              <div class="culture-bars">
+                <div class="culture-bar"><span class="label">Soja</span><div class="bar-track"><div class="bar-fill" style="width:83%"></div></div><span class="bar-value positive">+12,4%</span></div>
+                <div class="culture-bar"><span class="label">Milho</span><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><span class="bar-value positive">+8,7%</span></div>
+                <div class="culture-bar"><span class="label">Algodão</span><div class="bar-track"><div class="bar-fill" style="width:39%"></div></div><span class="bar-value positive">+5,9%</span></div>
+                <div class="culture-bar"><span class="label">Arroz</span><div class="bar-track"><div class="bar-fill" style="width:18%;background:#c65a4a"></div></div><span class="bar-value negative">−2,8%</span></div>
+                <div class="culture-bar"><span class="label">Feijão</span><div class="bar-track"><div class="bar-fill" style="width:12%;background:#c65a4a"></div></div><span class="bar-value negative">−1,7%</span></div>
+              </div>
+              <div class="note">Eixo centrado em zero recomendado para tornar quedas e aumentos comparáveis.</div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Filtros para explorar rankings</h3><div class="card-sub">Controles compartilhados entre as tabelas municipais.</div></div><span class="tag">Interação</span></div>
+              <div class="grid two">
+                <label class="control">Cultura&nbsp; <select><option>Todas as culturas</option><option>Soja</option><option>Milho</option></select></label>
+                <label class="control">UF&nbsp; <select><option>Todas as UFs</option><option>MT</option><option>GO</option><option>BA</option></select></label>
+              </div>
+              <div style="height:10px"></div>
+              <label class="control">Buscar município&nbsp; <input aria-label="Buscar município" placeholder="Digite o nome ou código IBGE" style="border:0;outline:0;width:180px"></label>
+              <div class="note">Filtros refinam a lista. Sinalizar quando um filtro estadual alterar o universo de comparação nacional.</div>
+            </article>
+          </div>
+          <div class="section-label">Tabelas de ranking e alerta</div>
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head"><div><h3>Municípios com maior expansão de área</h3><div class="card-sub">Variação entre 2000 e 2025 · hectares</div></div><span class="tag">03 · Top 10</span></div>
+              <div class="table-wrap"><table><thead><tr><th>#</th><th>Município</th><th>UF</th><th class="numeric">Área 2000</th><th class="numeric">Área 2025</th><th class="numeric">Aumento</th></tr></thead>
+                <tbody><tr><td><span class="rank">1</span></td><td>Sorriso</td><td><span class="uf">MT</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">— ha</td></tr>
+                  <tr><td><span class="rank">2</span></td><td>São Desidério</td><td><span class="uf">BA</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">— ha</td></tr>
+                  <tr><td><span class="rank">3</span></td><td>Rio Verde</td><td><span class="uf">GO</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">— ha</td></tr></tbody>
+              </table></div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Maior aumento de quantidade produzida</h3><div class="card-sub">Soma das culturas · 2000 → 2025</div></div><span class="tag">07 · Top 10</span></div>
+              <div class="table-wrap"><table><thead><tr><th>#</th><th>Município</th><th>UF</th><th class="numeric">2000 (t)</th><th class="numeric">2025 (t)</th><th class="numeric">Aumento</th></tr></thead>
+                <tbody><tr><td><span class="rank">1</span></td><td>Sorriso</td><td><span class="uf">MT</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">— t</td></tr>
+                  <tr><td><span class="rank">2</span></td><td>Nova Mutum</td><td><span class="uf">MT</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">— t</td></tr>
+                  <tr><td><span class="rank">3</span></td><td>Rio Verde</td><td><span class="uf">GO</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">— t</td></tr></tbody>
+              </table></div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Maiores aumentos de rendimento agregado</h3><div class="card-sub">Variação de kg/ha · municípios com aumento positivo</div></div><span class="tag">14 · Top 20</span></div>
+              <div class="table-wrap"><table><thead><tr><th>#</th><th>Município</th><th>UF</th><th class="numeric">2000</th><th class="numeric">2025</th><th class="numeric">Variação</th></tr></thead>
+                <tbody><tr><td><span class="rank">1</span></td><td>Município exemplo</td><td><span class="uf">MT</span></td><td class="numeric">— kg/ha</td><td class="numeric">— kg/ha</td><td class="numeric positive">—%</td></tr>
+                  <tr><td><span class="rank">2</span></td><td>Município exemplo</td><td><span class="uf">GO</span></td><td class="numeric">— kg/ha</td><td class="numeric">— kg/ha</td><td class="numeric positive">—%</td></tr></tbody>
+              </table></div>
+              <div class="note">Rendimento agregado ponderado pela área; não representa uma cultura específica.</div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Área aumentou, produção não acompanhou</h3><div class="card-sub">Municípios para investigar · 2000 → 2025</div></div><span class="tag">09 · Alerta</span></div>
+              <div class="alert-box">Atenção: crescimento de área plantada sem aumento correspondente da quantidade produzida. Use como sinal para análise, não como diagnóstico de causa.</div>
+              <div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>Município</th><th>UF</th><th class="numeric">Área + (ha)</th><th class="numeric">Produção (t)</th></tr></thead>
+                <tbody><tr><td>Município exemplo</td><td><span class="uf">RS</span></td><td class="numeric">—</td><td class="numeric negative">—</td></tr>
+                  <tr><td>Município exemplo</td><td><span class="uf">PR</span></td><td class="numeric">—</td><td class="numeric negative">—</td></tr></tbody>
+              </table></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" id="produtividade">
+          <div class="page-heading">
+            <div><h2>Produtividade e valor por hectare</h2><p>Dois indicadores diferentes: rendimento físico nacional (kg/ha) e valor bruto municipal (R$/ha).</p></div>
+            <span class="control">Cultura&nbsp; Todas&nbsp;⌄</span>
+          </div>
+          <div class="sample-note">Valores demonstrativos. A consulta 11 usa rendimento nacional em kg/ha; a consulta 13 retorna mil R$/ha e deve ser multiplicada por 1.000 para exibição em R$/ha.</div>
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head"><div><h3>Rendimento nacional por cultura</h3><div class="card-sub">2000 → 2025 · pontos comparáveis em kg/ha</div></div><span class="tag">11 · Brasil</span></div>
+              <div class="dumbbell">
+                <div class="dumb-row"><span class="dumb-name">Milho</span><div class="dumb-track"><i class="dumb-range" style="left:19%;width:62%"></i><i class="dumb-dot old" style="left:18%"></i><i class="dumb-dot new" style="left:80%"></i></div><span class="dumb-delta">+142%</span></div>
+                <div class="dumb-row"><span class="dumb-name">Soja</span><div class="dumb-track"><i class="dumb-range" style="left:31%;width:49%"></i><i class="dumb-dot old" style="left:30%"></i><i class="dumb-dot new" style="left:79%"></i></div><span class="dumb-delta">+88%</span></div>
+                <div class="dumb-row"><span class="dumb-name">Algodão</span><div class="dumb-track"><i class="dumb-range" style="left:35%;width:38%"></i><i class="dumb-dot old" style="left:34%"></i><i class="dumb-dot new" style="left:72%"></i></div><span class="dumb-delta">+71%</span></div>
+                <div class="dumb-row"><span class="dumb-name">Arroz</span><div class="dumb-track"><i class="dumb-range" style="left:40%;width:26%"></i><i class="dumb-dot old" style="left:39%"></i><i class="dumb-dot new" style="left:65%"></i></div><span class="dumb-delta">+48%</span></div>
+                <div class="dumb-row"><span class="dumb-name">Café</span><div class="dumb-track"><i class="dumb-range" style="left:45%;width:17%"></i><i class="dumb-dot old" style="left:44%"></i><i class="dumb-dot new" style="left:61%"></i></div><span class="dumb-delta">+31%</span></div>
+                <div class="dumb-row"><span class="dumb-name">Feijão</span><div class="dumb-track"><i class="dumb-range" style="left:48%;width:10%"></i><i class="dumb-dot old" style="left:47%"></i><i class="dumb-dot new" style="left:57%"></i></div><span class="dumb-delta">+18%</span></div>
+                <div class="dumb-row"><span class="dumb-name">Trigo</span><div class="dumb-track"><i class="dumb-range" style="left:36%;width:17%"></i><i class="dumb-dot old" style="left:35%"></i><i class="dumb-dot new" style="left:52%"></i></div><span class="dumb-delta">+32%</span></div>
+              </div>
+              <div class="dumb-legend"><span><i></i>2000</span><span><i class="new-dot"></i>2025</span></div>
+              <div class="value-label"><span>Menor rendimento</span><span>Maior rendimento (kg/ha)</span></div>
+              <div class="note">Ordenado pelo aumento percentual. No gráfico real, inclua rótulos dos dois valores absolutos por cultura e destaque quedas com outra cor.</div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Dados de rendimento por cultura</h3><div class="card-sub">Valores absolutos e variações da consulta 11</div></div><span class="tag">11</span></div>
+              <div class="table-wrap"><table><thead><tr><th>Cultura</th><th class="numeric">2000 (kg/ha)</th><th class="numeric">2025 (kg/ha)</th><th class="numeric">Aumento (kg/ha)</th><th class="numeric">Variação</th></tr></thead>
+                <tbody><tr><td>Milho</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr>
+                  <tr><td>Soja</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr>
+                  <tr><td>Algodão</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr>
+                  <tr><td>Arroz</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr>
+                  <tr><td>Café</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr>
+                  <tr><td>Feijão</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr>
+                  <tr><td>Trigo</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric positive">—%</td></tr></tbody>
+              </table></div>
+              <div class="note">Cards opcionais: cultura com maior aumento percentual e cultura com maior ganho absoluto em kg/ha.</div>
+            </article>
+          </div>
+          <div class="section-label">Valor bruto por hectare · municípios</div>
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head"><div><h3>Top 10 municípios · valor bruto por hectare</h3><div class="card-sub">Uma cultura selecionada · 2025 · R$/ha</div></div>
+                <label class="control"><select aria-label="Selecionar cultura"><option>Soja</option><option>Milho</option><option>Algodão</option><option>Arroz</option><option>Café</option><option>Feijão</option><option>Trigo</option></select></label>
+              </div>
+              <div class="bar-list">
+                <div class="bar-row"><span class="label">1 · MT</span><div class="bar-track"><div class="bar-fill" style="width:96%"></div></div><span class="bar-value">R$ —</span></div>
+                <div class="bar-row"><span class="label">2 · GO</span><div class="bar-track"><div class="bar-fill" style="width:84%"></div></div><span class="bar-value">R$ —</span></div>
+                <div class="bar-row"><span class="label">3 · BA</span><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div><span class="bar-value">R$ —</span></div>
+                <div class="bar-row"><span class="label">4 · PR</span><div class="bar-track"><div class="bar-fill" style="width:61%"></div></div><span class="bar-value">R$ —</span></div>
+                <div class="bar-row"><span class="label">5 · MS</span><div class="bar-track"><div class="bar-fill" style="width:53%"></div></div><span class="bar-value">R$ —</span></div>
+              </div>
+              <div class="note">Barras ordenadas pelo indicador. Tooltip recomendado: valor da produção, área colhida e município.</div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><h3>Ranking detalhado por município</h3><div class="card-sub">Valor bruto não representa lucro; não desconta custos de produção.</div></div><span class="tag">13 · Top 10/cultura</span></div>
+              <div class="table-wrap"><table><thead><tr><th>#</th><th>Município</th><th>UF</th><th class="numeric">Produção (mil R$)</th><th class="numeric">Área (ha)</th><th class="numeric">R$/ha</th></tr></thead>
+                <tbody><tr><td><span class="rank">1</span></td><td>Município exemplo</td><td><span class="uf">MT</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">2</span></td><td>Município exemplo</td><td><span class="uf">GO</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td></tr>
+                  <tr><td><span class="rank">3</span></td><td>Município exemplo</td><td><span class="uf">BA</span></td><td class="numeric">—</td><td class="numeric">—</td><td class="numeric">—</td></tr></tbody>
+              </table></div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script>
+    const pageButtons = document.querySelectorAll("[data-page]");
+    const pages = document.querySelectorAll(".page");
+    pageButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const pageId = button.dataset.page;
+        pages.forEach((page) => page.classList.toggle("active", page.id === pageId));
+        pageButtons.forEach((item) => item.classList.toggle("active", item.dataset.page === pageId));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    document.querySelectorAll("[data-ranking]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const card = button.closest(".card");
+        card.querySelectorAll("[data-ranking]").forEach((item) => item.classList.toggle("active", item === button));
+        card.querySelectorAll(".ranking-panel").forEach((panel) => panel.classList.toggle("active", panel.id === button.dataset.ranking));
+      });
+    });
+
+    document.querySelectorAll(".state-tile").forEach((tile) => {
+      tile.addEventListener("click", () => {
+        document.querySelectorAll(".state-tile").forEach((item) => item.classList.toggle("selected", item === tile));
+        document.getElementById("leader-state").textContent = `${tile.dataset.uf} · valor demonstrativo`;
+      });
+    });
+  </script>
+</body>
+</html>
