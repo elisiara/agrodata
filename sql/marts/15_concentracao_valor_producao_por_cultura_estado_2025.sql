@@ -1,17 +1,24 @@
--- 15. Concentração do valor da produção por cultura dentro de cada estado,
+-- 15. Composição e concentração do valor da produção por cultura e estado,
 -- em 2025, usando as sete culturas do dataset e somente registros MU.
--- O índice Herfindahl-Hirschman (HHI) é a soma dos quadrados das participações
--- das culturas no valor total estadual: quanto mais próximo de 1, mais
+-- As participações percentuais somam 100% por estado, considerando as sete
+-- culturas. O índice Herfindahl-Hirschman (HHI) é a soma dos quadrados das
+-- participações em proporção (entre 0 e 1): quanto mais próximo de 1, mais
 -- concentrado o valor em poucas culturas. O número efetivo de culturas (1/HHI)
--- facilita a leitura: aproxima quantas culturas teriam pesos iguais para
--- produzir a mesma concentração. O indicador não mede toda a agricultura
--- estadual: considera apenas as sete culturas da tabela e valores brutos.
--- Grão das CTEs e do resultado:
--- valor_por_estado_cultura: estado (UF) × cultura em 2025.
--- participacao_por_cultura: estado × cultura, com participação no total estadual.
--- concentracao_por_estado: estado (UF).
--- ranking_culturas: estado × cultura, com posição dentro do estado.
--- Resultado final: estado (UF), com sua cultura de maior valor.
+-- aproxima quantas culturas teriam pesos iguais para produzir a mesma
+-- concentração. Esses indicadores não representam toda a agricultura estadual:
+-- consideram apenas as sete culturas da tabela e valores brutos.
+--
+-- Grão de cada CTE:
+-- valor_por_estado_cultura: uma linha por estado (UF) × cultura em 2025.
+-- participacao_por_cultura: uma linha por estado (UF) × cultura, com a
+--   participação de cada cultura no valor total estadual.
+-- concentracao_por_estado: uma linha por estado (UF), com valor total,
+--   HHI e número efetivo de culturas.
+-- ranking_culturas: uma linha por estado (UF) × cultura, com a posição da
+--   cultura no ranking de valor daquele estado.
+-- Grão do SELECT final: uma linha por estado (UF) × cultura em 2025,
+--   contendo o valor e a participação da cultura, sua posição no ranking
+--   estadual e os indicadores de concentração do estado.
 
 WITH valor_por_estado_cultura AS (
     SELECT
@@ -43,20 +50,23 @@ participacao_por_cultura AS (
         valor_producao_mil_reais,
         SUM(valor_producao_mil_reais) OVER (PARTITION BY uf)
             AS valor_total_estado_mil_reais,
-        valor_producao_mil_reais
+        100.0 * valor_producao_mil_reais
             / NULLIF(
                 SUM(valor_producao_mil_reais) OVER (PARTITION BY uf),
                 0
-            ) AS participacao_valor_estado
+            ) AS participacao_valor_estado_percentual
     FROM valor_por_estado_cultura
 ),
 concentracao_por_estado AS (
     SELECT
         uf,
         MAX(valor_total_estado_mil_reais) AS valor_total_estado_mil_reais,
-        SUM(POWER(participacao_valor_estado, 2))
+        SUM(POWER(participacao_valor_estado_percentual / 100.0, 2))
             AS indice_concentracao_hhi,
-        1.0 / NULLIF(SUM(POWER(participacao_valor_estado, 2)), 0)
+        1.0 / NULLIF(
+            SUM(POWER(participacao_valor_estado_percentual / 100.0, 2)),
+            0
+        )
             AS numero_efetivo_culturas
     FROM participacao_por_cultura
     GROUP BY uf
@@ -64,26 +74,26 @@ concentracao_por_estado AS (
 ranking_culturas AS (
     SELECT
         uf,
-        cultura AS cultura_de_maior_valor,
-        valor_producao_mil_reais AS valor_cultura_de_maior_valor_mil_reais,
-        100.0 * participacao_valor_estado
-            AS participacao_cultura_de_maior_valor_percentual,
+        cultura,
         ROW_NUMBER() OVER (
             PARTITION BY uf
             ORDER BY valor_producao_mil_reais DESC, cultura
-        ) AS posicao
-    FROM participacao_por_cultura
+        ) AS ranking_no_estado
+    FROM valor_por_estado_cultura
 )
 SELECT
-    c.uf,
-    c.valor_total_estado_mil_reais,
-    r.cultura_de_maior_valor,
-    r.valor_cultura_de_maior_valor_mil_reais,
-    r.participacao_cultura_de_maior_valor_percentual,
+    p.uf,
+    p.cultura,
+    p.valor_producao_mil_reais,
+    p.valor_total_estado_mil_reais,
+    p.participacao_valor_estado_percentual,
+    r.ranking_no_estado,
     c.indice_concentracao_hhi,
     c.numero_efetivo_culturas
-FROM concentracao_por_estado AS c
+FROM participacao_por_cultura AS p
+JOIN concentracao_por_estado AS c
+  ON c.uf = p.uf
 JOIN ranking_culturas AS r
-  ON r.uf = c.uf
- AND r.posicao = 1
-ORDER BY c.indice_concentracao_hhi DESC, c.uf;
+  ON r.uf = p.uf
+ AND r.cultura = p.cultura
+ORDER BY p.uf, r.ranking_no_estado;
