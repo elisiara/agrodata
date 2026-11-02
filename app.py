@@ -91,34 +91,63 @@ st.markdown(
     }
 
     [data-testid="stTabs"] [data-baseweb="tab-list"] {
-        gap: 0.35rem;
-        padding: 0.35rem;
+        gap: 0.5rem;
+        padding: 0.45rem;
         border: 1px solid var(--agro-line);
-        border-radius: 12px;
+        border-radius: 16px;
         background: #fff;
     }
 
     [data-testid="stTabs"] button[role="tab"] {
         min-height: 2.65rem;
-        padding: 0.55rem 1rem;
-        border-radius: 8px;
+        padding: 0.6rem 1.1rem;
+        border: 1px solid transparent;
+        border-radius: 12px;
         color: var(--agro-green-dark);
         font-weight: 700;
+        transition: color 120ms ease, background 120ms ease, box-shadow 120ms ease;
     }
 
-    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    [data-testid="stTabs"] button[role="tab"]:hover:not([aria-selected="true"]) {
+        color: var(--agro-green-dark);
+        background: var(--agro-green-soft);
+    }
+
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"],
+    [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"],
+    [data-testid="stTabs"] [data-selected="true"] {
+        padding: 5px;
+        border-radius: 5px;
         color: #fff !important;
         background: var(--agro-green-dark) !important;
+        border-color: var(--agro-green-dark) !important;
         box-shadow: none !important;
     }
 
-    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] *,
-    [data-testid="stTabs"] button[role="tab"][aria-selected="true"] p {
+    [data-testid="stTabs"] .st-emotion-cache-qksclw[data-hovered] {
+        color: rgb(63 202 136) !important;
+    }
+
+    [data-testid="stTabs"] .react-aria-SelectionIndicator {
+        background-color: var(--agro-green-dark) !important;
+        border-color: var(--agro-green-dark) !important;
+        border-radius: 999px;
+    }
+
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] *,
+    [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] *,
+    [data-testid="stTabs"] [data-selected="true"] * {
         color: #fff !important;
     }
 
     [data-testid="stTabs"] [data-baseweb="tab-highlight"],
     [data-testid="stTabs"] [data-baseweb="tab-border"] {
+        background-color: var(--agro-green-dark) !important;
+        border-color: var(--agro-green-dark) !important;
+    }
+
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"]::after,
+    [data-testid="stTabs"] [data-selected="true"]::after {
         background-color: var(--agro-green-dark) !important;
         border-color: var(--agro-green-dark) !important;
     }
