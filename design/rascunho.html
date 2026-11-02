@@ -62,6 +62,8 @@
       display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid var(--line);
       border-radius: 9px; color: #506157; background: #fff; font-size: 11px;
     }
+    .refresh-button { border-color: var(--green); color: #fff; background: var(--green); font-weight: 700; }
+    .refresh-button:hover { background: var(--green-dark); }
     .badge { color: #876321; background: #fff8e9; border-color: #f1e2bd; }
     .sticky-area {
       position: sticky; top: 0; z-index: 5; padding: 0 34px 12px;
@@ -265,6 +267,7 @@
         </div>
         <div class="top-actions">
           <span class="badge">◉ Dados ilustrativos</span>
+          <button class="control refresh-button" id="refresh-page" type="button" aria-label="Recarregar dados da página">↻ Atualizar</button>
           <button class="control" type="button">Brasil&nbsp;⌄</button>
         </div>
       </header>
@@ -626,6 +629,10 @@
     </main>
   </div>
   <script>
+    document.getElementById("refresh-page").addEventListener("click", () => {
+      window.location.reload();
+    });
+
     const pageButtons = document.querySelectorAll("[data-page]");
     const pages = document.querySelectorAll(".page");
     pageButtons.forEach((button) => {
