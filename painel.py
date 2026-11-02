@@ -300,10 +300,10 @@ def grafico_mapa_estados(df: pd.DataFrame, ano: int) -> go.Figure:
             z=dados_mapa["quantidade_produzida_toneladas"],
             customdata=customdata,
             colorscale=[
-                [0, "#c8ece6"],
-                [0.35, "#81c9c4"],
-                [0.7, "#428e9f"],
-                [1, "#234f70"],
+                [0, "#e7f2e9"],
+                [0.35, "#a9d2b4"],
+                [0.7, "#5b9b70"],
+                [1, "#193d2d"],
             ],
             showscale=True,
             colorbar={
