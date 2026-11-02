@@ -49,13 +49,18 @@ def test_gravar_recria_tabela_retorna_contagem_e_remove_registro(tmp_path):
 
         assert db.gravar(conexao, dados, "raw", "itens") == 3
         assert db.gravar(conexao, dados, "raw", "itens") == 3
-        assert conexao.execute("SELECT * FROM raw.itens ORDER BY codigo").fetchall() == [
+        assert conexao.execute(
+            "SELECT * FROM raw.itens ORDER BY codigo"
+        ).fetchall() == [
             ("01", 1),
             ("02", 2),
             ("03", 3),
         ]
-        assert conexao.execute(
-            "SELECT count(*) FROM duckdb_views() WHERE view_name LIKE '_dataframe_%'"
-        ).fetchone()[0] == 0
+        assert (
+            conexao.execute(
+                "SELECT count(*) FROM duckdb_views() WHERE view_name LIKE '_dataframe_%'"
+            ).fetchone()[0]
+            == 0
+        )
     finally:
         conexao.close()

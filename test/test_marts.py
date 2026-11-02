@@ -85,10 +85,14 @@ def _criar_refined(con):
         medidas = ", ".join(f'"{coluna}" {tipo}' for coluna in COLUNAS_MEDIDA)
         con.execute(
             f'CREATE TABLE refined."{tabela}" (nivel VARCHAR, '
-            f'codigo_municipio_ibge VARCHAR, brasil_e_municipio VARCHAR, '
-            f'ano SMALLINT, {medidas})'
+            f"codigo_municipio_ibge VARCHAR, brasil_e_municipio VARCHAR, "
+            f"ano SMALLINT, {medidas})"
         )
-        anos = (2000, 2024, 2025) if tabela != "rendimento_medio_da_producao" else (2000, 2025)
+        anos = (
+            (2000, 2024, 2025)
+            if tabela != "rendimento_medio_da_producao"
+            else (2000, 2025)
+        )
         for codigo, nome in (("1001", "Alpha"), ("1002", "Beta")):
             for ano in anos:
                 # Cada cidade/ano é uma observação sintética; Alpha expande área,
@@ -140,9 +144,7 @@ def _preparar_db_e_marts(tmp_path):
 
 def _patch_caminhos(monkeypatch, tmp_path, caminho_banco, pasta_sql):
     monkeypatch.setattr(marts, "PASTA_MARTS", pasta_sql)
-    monkeypatch.setattr(
-        marts, "conectar", lambda: duckdb.connect(str(caminho_banco))
-    )
+    monkeypatch.setattr(marts, "conectar", lambda: duckdb.connect(str(caminho_banco)))
 
 
 def test_mart_01_escolhe_lider_por_cultura_e_ignora_brasil(tmp_path):
@@ -174,9 +176,7 @@ def test_mart_02_limita_top_20_e_soma_as_culturas_de_2025(tmp_path):
         (f"3000{indice:02}", f"Extra {indice}", pontuacao)
         for indice, pontuacao in enumerate(range(30, 13, -1))
     ]
-    candidatos.extend(
-        [("2001", "Empate A", 13), ("2002", "Empate B", 13)]
-    )
+    candidatos.extend([("2001", "Empate A", 13), ("2002", "Empate B", 13)])
     for codigo, nome, pontuacao in candidatos:
         con.execute(
             "INSERT INTO refined.municipio VALUES (?, ?, ?, ?, ?)",
@@ -191,10 +191,7 @@ def test_mart_02_limita_top_20_e_soma_as_culturas_de_2025(tmp_path):
                 [codigo, nome, *valores],
             )
     sql = (
-        RAIZ
-        / "sql"
-        / "marts"
-        / "02_20_municipios_maiores_produtores_em_2025.sql"
+        RAIZ / "sql" / "marts" / "02_20_municipios_maiores_produtores_em_2025.sql"
     ).read_text(encoding="utf-8")
     dados = con.execute(sql).fetchdf()
     con.close()
@@ -208,9 +205,7 @@ def test_mart_02_limita_top_20_e_soma_as_culturas_de_2025(tmp_path):
 
 
 def test_mart_03_calcula_expansao_e_percentual_sobre_2000(tmp_path):
-    dados = _resultado(
-        tmp_path, "03_municipios_maior_expansao_area_plantada.sql"
-    )
+    dados = _resultado(tmp_path, "03_municipios_maior_expansao_area_plantada.sql")
 
     assert dados["municipio"].tolist() == ["Alpha"]
     assert dados.loc[0, "crescimento_area_hectares"] == 7
@@ -226,9 +221,12 @@ def test_mart_04_calcula_variacao_nacional_e_base_zero_fica_nula(tmp_path):
     assert len(dados) == 7
     primeira = dados.loc[dados["quantidade_2024_toneladas"].eq(0)].iloc[0]
     assert pd.isna(primeira["variacao_percentual"])
-    assert dados.loc[dados["quantidade_2024_toneladas"].gt(0), "variacao_percentual"].tolist() == [
-        100.0
-    ] * 6
+    assert (
+        dados.loc[
+            dados["quantidade_2024_toneladas"].gt(0), "variacao_percentual"
+        ].tolist()
+        == [100.0] * 6
+    )
 
 
 def test_mart_05_soma_areas_e_calcula_percentuais_complementares(tmp_path):
@@ -265,9 +263,7 @@ def test_mart_07_ordena_aumentos_e_exige_ambos_os_anos(tmp_path):
 
 
 def test_mart_08_calcula_lag_por_cultura_e_primeiro_ano_sem_anterior(tmp_path):
-    dados = _resultado(
-        tmp_path, "08_evolucao_valor_producao_por_cultura_2000_2025.sql"
-    )
+    dados = _resultado(tmp_path, "08_evolucao_valor_producao_por_cultura_2000_2025.sql")
     cultura = dados.loc[dados["cultura"].eq("Arroz (em casca)")].set_index("ano")
 
     assert len(dados) == 21
@@ -278,9 +274,7 @@ def test_mart_08_calcula_lag_por_cultura_e_primeiro_ano_sem_anterior(tmp_path):
 
 
 def test_mart_09_retorna_apenas_area_maior_sem_aumento_de_producao(tmp_path):
-    dados = _resultado(
-        tmp_path, "09_expansao_area_sem_aumento_producao_2000_2025.sql"
-    )
+    dados = _resultado(tmp_path, "09_expansao_area_sem_aumento_producao_2000_2025.sql")
 
     assert dados.empty
 
@@ -308,8 +302,15 @@ def test_mart_11_calcula_aumento_de_rendimento_e_descarta_nivel_municipal(
     )
 
     assert len(dados) == 7
-    assert dados.loc[dados["ranking_aumento"].eq(1), "cultura"].iloc[0] == "Arroz (em casca)"
-    assert dados.loc[dados["rendimento_2000_kg_por_hectare"].eq(0), "aumento_percentual"].isna().all()
+    assert (
+        dados.loc[dados["ranking_aumento"].eq(1), "cultura"].iloc[0]
+        == "Arroz (em casca)"
+    )
+    assert (
+        dados.loc[dados["rendimento_2000_kg_por_hectare"].eq(0), "aumento_percentual"]
+        .isna()
+        .all()
+    )
     assert pd.isna(dados.iloc[-1]["aumento_percentual"])
 
 
@@ -333,8 +334,16 @@ def test_mart_13_calcula_valor_bruto_por_hectare_e_ranking(tmp_path):
     )
 
     assert len(dados) == 14
-    assert dados.loc[dados["cultura"].eq("Arroz (em casca)")].iloc[0]["municipio"] == "Alpha"
-    assert dados.loc[dados["cultura"].eq("Arroz (em casca)")].iloc[0]["valor_bruto_por_hectare_mil_reais"] == 10
+    assert (
+        dados.loc[dados["cultura"].eq("Arroz (em casca)")].iloc[0]["municipio"]
+        == "Alpha"
+    )
+    assert (
+        dados.loc[dados["cultura"].eq("Arroz (em casca)")].iloc[0][
+            "valor_bruto_por_hectare_mil_reais"
+        ]
+        == 10
+    )
 
 
 def test_mart_14_filtra_aumento_de_rendimento_e_calcula_percentual(tmp_path):
@@ -383,10 +392,13 @@ def test_marts_materializa_sql_e_remove_tabela_quando_arquivo_some(
     marts.main()
     segunda_saida = capsys.readouterr().out
     con = duckdb.connect(str(caminho), read_only=True)
-    assert con.execute(
-        "SELECT count(*) FROM information_schema.tables "
-        "WHERE table_schema = 'marts' AND table_name = 'drop'"
-    ).fetchone()[0] == 0
+    assert (
+        con.execute(
+            "SELECT count(*) FROM information_schema.tables "
+            "WHERE table_schema = 'marts' AND table_name = 'drop'"
+        ).fetchone()[0]
+        == 0
+    )
     con.close()
     assert "Total: 2 marts, 2 linhas" in primeira_saida
     assert segunda_saida == "✓ marts.keep 1 linhas\nTotal: 1 marts, 1 linhas\n"
@@ -409,10 +421,13 @@ def test_arquivo_sem_prefixo_e_recusado_sem_alterar_schema(
     assert "invalido.sql" in capsys.readouterr().err
     con = duckdb.connect(str(caminho), read_only=True)
     assert con.execute("SELECT valor FROM marts.anterior").fetchone()[0] == 99
-    assert con.execute(
-        "SELECT count(*) FROM information_schema.tables "
-        "WHERE table_schema = 'marts' AND table_name = 'valido'"
-    ).fetchone()[0] == 0
+    assert (
+        con.execute(
+            "SELECT count(*) FROM information_schema.tables "
+            "WHERE table_schema = 'marts' AND table_name = 'valido'"
+        ).fetchone()[0]
+        == 0
+    )
     con.close()
 
 
@@ -434,9 +449,7 @@ def test_pasta_sem_arquivos_sql_e_recusada_sem_alterar_schema(
     con.close()
 
 
-def test_sql_ilegivel_e_reportado_sem_alterar_schema(
-    tmp_path, monkeypatch, capsys
-):
+def test_sql_ilegivel_e_reportado_sem_alterar_schema(tmp_path, monkeypatch, capsys):
     caminho = _preparar_db_e_marts(tmp_path)
     pasta_sql = tmp_path / "sql-ilegivel"
     pasta_sql.mkdir()
@@ -529,7 +542,9 @@ def test_erro_sql_informa_arquivo_e_reverte_materializacao(
     caminho = _preparar_db_e_marts(tmp_path)
     pasta_sql = tmp_path / "sql"
     pasta_sql.mkdir()
-    (pasta_sql / "00_falha.sql").write_text("SELECT * FROM inexistente", encoding="utf-8")
+    (pasta_sql / "00_falha.sql").write_text(
+        "SELECT * FROM inexistente", encoding="utf-8"
+    )
     _patch_caminhos(monkeypatch, tmp_path, caminho, pasta_sql)
 
     with pytest.raises(SystemExit) as saida:

@@ -87,16 +87,16 @@ def _ler_mapa_anos_culturas(
     anos_brutos: list[str], culturas_brutas: list[str], caminho: Path
 ) -> list[tuple[str, tuple[str, ...]]]:
     if len(anos_brutos) > LARGURA_IBGE:
-        raise ValueError(
-            f"{caminho}: cabeçalho de anos excede {LARGURA_IBGE} campos."
-        )
+        raise ValueError(f"{caminho}: cabeçalho de anos excede {LARGURA_IBGE} campos.")
     if len(culturas_brutas) != LARGURA_IBGE:
         raise ValueError(
             f"{caminho}: cabeçalho de culturas tem {len(culturas_brutas)} "
             f"campos; esperado: {LARGURA_IBGE}."
         )
     if anos_brutos[:COLUNA_INICIAL_MEDIDAS] != list(COLUNAS_IDENTIFICADORAS):
-        raise ValueError(f"{caminho}: identificadores inesperados no cabeçalho de anos.")
+        raise ValueError(
+            f"{caminho}: identificadores inesperados no cabeçalho de anos."
+        )
 
     anos_brutos.extend([""] * (LARGURA_IBGE - len(anos_brutos)))
     posicoes_de_ano = {
@@ -140,9 +140,7 @@ def _ler_mapa_anos_culturas(
         if len(anos_grupo) != 1:
             raise ValueError(f"{caminho}: um grupo de culturas contém anos distintos.")
         if culturas_grupo != PRODUTOS:
-            raise ValueError(
-                f"{caminho}: culturas inesperadas no ano {grupo[0][0]}."
-            )
+            raise ValueError(f"{caminho}: culturas inesperadas no ano {grupo[0][0]}.")
         grupos.append((grupo[0][0], culturas_grupo))
 
     anos_observados = tuple(ano for ano, _ in grupos)
@@ -159,9 +157,7 @@ def _ler_mapa_anos_culturas(
     return grupos
 
 
-def _ler_ibge(
-    caminho: Path, descricao_esperada: str, delimitador: str
-) -> pd.DataFrame:
+def _ler_ibge(caminho: Path, descricao_esperada: str, delimitador: str) -> pd.DataFrame:
     with caminho.open(encoding="utf-8-sig", newline="") as arquivo:
         leitor = csv.reader(arquivo, delimiter=delimitador)
         cabecalhos = []
@@ -175,11 +171,7 @@ def _ler_ibge(
                 ) from erro
 
         descricao = cabecalhos[1]
-        if (
-            not descricao
-            or descricao[0] != descricao_esperada
-            or any(descricao[1:])
-        ):
+        if not descricao or descricao[0] != descricao_esperada or any(descricao[1:]):
             raise ValueError(
                 f"{caminho}: descrição inesperada: {descricao!r}; "
                 f"esperada: {descricao_esperada!r}."
@@ -192,9 +184,7 @@ def _ler_ibge(
                 f"{cabecalho_descritivo!r}."
             )
 
-        grupos = _ler_mapa_anos_culturas(
-            cabecalhos[3], cabecalhos[4], caminho
-        )
+        grupos = _ler_mapa_anos_culturas(cabecalhos[3], cabecalhos[4], caminho)
         colunas = [*COLUNAS_IDENTIFICADORAS, "Ano", *PRODUTOS]
         registros: list[list[str | None]] = []
         codigos_municipais: set[str] = set()
@@ -237,16 +227,13 @@ def _ler_ibge(
                     valor if valor != "" else None
                     for valor in linha[inicio : inicio + len(PRODUTOS)]
                 ]
-                registros.append(
-                    [*linha[:3], ano, *valores]
-                )
+                registros.append([*linha[:3], ano, *valores])
 
         if not encontrou_rodape:
             raise ValueError(f"{caminho}: linha Fonte: não encontrada.")
         if quantidade_brasil != 1:
             raise ValueError(
-                f"{caminho}: esperado um registro BR; "
-                f"encontrado: {quantidade_brasil}."
+                f"{caminho}: esperado um registro BR; encontrado: {quantidade_brasil}."
             )
         if not codigos_municipais:
             raise ValueError(f"{caminho}: nenhum registro MU encontrado.")
@@ -292,9 +279,7 @@ def main() -> None:
         print(f"{SCHEMA}.municipio: {_formatar_milhar(quantidade)}")
 
         for nome_arquivo, nome_tabela, descricao, delimitador in ARQUIVOS_IBGE:
-            df = _ler_ibge(
-                PASTA_RAW / nome_arquivo, descricao, delimitador
-            )
+            df = _ler_ibge(PASTA_RAW / nome_arquivo, descricao, delimitador)
             quantidade = gravar(con, df, SCHEMA, nome_tabela)
             total += quantidade
             print(f"{SCHEMA}.{nome_tabela}: {_formatar_milhar(quantidade)}")

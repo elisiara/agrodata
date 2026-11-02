@@ -59,17 +59,20 @@ def test_ingestao_grava_tabelas_com_linhas_e_valores_dos_csvs(
     conexao = duckdb.connect(str(caminho_banco), read_only=True)
     try:
         assert conexao.execute("SELECT count(*) FROM raw.municipio").fetchone()[0] == 1
-        assert conexao.execute(
-            "SELECT count(*) FROM raw.area_colhida"
-        ).fetchone()[0] == 52
+        assert (
+            conexao.execute("SELECT count(*) FROM raw.area_colhida").fetchone()[0] == 52
+        )
         assert conexao.execute(
             'SELECT "Nível", "Cód.", "Ano" FROM raw.area_colhida '
             'WHERE "Cód." = \'0000001\' ORDER BY "Ano" LIMIT 1'
         ).fetchone() == ("MU", "0000001", "2000")
-        assert conexao.execute(
-            'SELECT "Algodão herbáceo (em caroço)" FROM raw.area_colhida '
-            'WHERE "Cód." = \'0000001\' AND "Ano" = \'2000\''
-        ).fetchone()[0] == "0"
+        assert (
+            conexao.execute(
+                'SELECT "Algodão herbáceo (em caroço)" FROM raw.area_colhida '
+                "WHERE \"Cód.\" = '0000001' AND \"Ano\" = '2000'"
+            ).fetchone()[0]
+            == "0"
+        )
     finally:
         conexao.close()
 

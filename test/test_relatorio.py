@@ -20,8 +20,16 @@ def _marts_sinteticos():
         ),
         "evolucao_valor_producao_por_cultura_2000_2025": pd.DataFrame(
             [
-                {"ano": 2000, "cultura": "Arroz (em casca)", "valor_producao_mil_reais": 10},
-                {"ano": 2025, "cultura": "Arroz (em casca)", "valor_producao_mil_reais": 20},
+                {
+                    "ano": 2000,
+                    "cultura": "Arroz (em casca)",
+                    "valor_producao_mil_reais": 10,
+                },
+                {
+                    "ano": 2025,
+                    "cultura": "Arroz (em casca)",
+                    "valor_producao_mil_reais": 20,
+                },
             ]
         ),
         "distribuicao_geografica_producao_por_estado_2000_2025": pd.DataFrame(
@@ -189,7 +197,9 @@ def _marts_sinteticos():
     }
 
 
-def test_relatorio_gera_html_tem_metricas_graficos_e_rodape(tmp_path, monkeypatch, capsys):
+def test_relatorio_gera_html_tem_metricas_graficos_e_rodape(
+    tmp_path, monkeypatch, capsys
+):
     dados = _marts_sinteticos()
     caminho = tmp_path / "saida" / "relatorio.html"
     caminho.parent.mkdir()
@@ -215,7 +225,7 @@ def test_gerar_relatorio_em_execucoes_deterministicas_muda_so_rodape():
     primeira = relatorio.gerar_relatorio(dados, datetime(2026, 11, 2, 10, 0))
     segunda = relatorio.gerar_relatorio(dados, datetime(2026, 11, 2, 10, 1))
 
-    assert primeira.replace("Dados de 02/11/2026 10:00", "Dados de <rodape>") == segunda.replace(
-        "Dados de 02/11/2026 10:01", "Dados de <rodape>"
-    )
+    assert primeira.replace(
+        "Dados de 02/11/2026 10:00", "Dados de <rodape>"
+    ) == segunda.replace("Dados de 02/11/2026 10:01", "Dados de <rodape>")
     assert len(primeira.encode("utf-8")) < 200 * 1024

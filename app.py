@@ -366,21 +366,19 @@ def filtrar_busca(
     mascara = pd.Series(False, index=dados.index)
     for coluna in colunas:
         if coluna in dados.columns:
-            mascara |= dados[coluna].astype("string").str.contains(
-                termo.strip(), case=False, regex=False, na=False
+            mascara |= (
+                dados[coluna]
+                .astype("string")
+                .str.contains(termo.strip(), case=False, regex=False, na=False)
             )
     return dados.loc[mascara]
 
 
-def filtrar_municipios(
-    dados: pd.DataFrame, uf: str, busca: str
-) -> pd.DataFrame:
+def filtrar_municipios(dados: pd.DataFrame, uf: str, busca: str) -> pd.DataFrame:
     filtrados = dados
     if uf != "Todas" and "uf" in filtrados.columns:
         filtrados = filtrados.loc[filtrados["uf"].eq(uf)]
-    return filtrar_busca(
-        filtrados, busca, ("municipio", "codigo_municipio_ibge")
-    )
+    return filtrar_busca(filtrados, busca, ("municipio", "codigo_municipio_ibge"))
 
 
 def mostrar_erro_marts(mensagem: str) -> None:
@@ -410,9 +408,7 @@ with acao:
 try:
     marts = carregar_marts()
 except painel.ErroLeituraMarts as erro:
-    mostrar_erro_marts(
-        f"{erro} O dashboard não usa dados demonstrativos."
-    )
+    mostrar_erro_marts(f"{erro} O dashboard não usa dados demonstrativos.")
 
 colunas_faltantes = validar_colunas(marts)
 if colunas_faltantes:
@@ -430,7 +426,7 @@ resumo = marts["resumo_totais_2025"].iloc[0]
 metricas = st.columns(4)
 metricas[0].metric(
     "Valor da produção (bi R$)",
-    f"{painel.reais(resumo["valor_producao_bilhoes_reais"])} bi",
+    f"{painel.reais(resumo['valor_producao_bilhoes_reais'])} bi",
 )
 metricas[1].metric(
     "Quantidade produzida (mi t)",
@@ -506,9 +502,7 @@ with aba_panorama:
     )
     if visualizacao.startswith("Líder"):
         ranking = marts["ranking_valor_da_producao_muncipio_por_cultura"]
-        termo = st.text_input(
-            "Buscar cultura ou município", key="busca_lideres"
-        )
+        termo = st.text_input("Buscar cultura ou município", key="busca_lideres")
         ranking = filtrar_busca(ranking, termo, ("cultura", "municipio", "uf"))
         tabela(
             ranking,
@@ -521,9 +515,7 @@ with aba_panorama:
         )
     else:
         ranking = marts["20_municipios_maiores_produtores_em_2025"]
-        termo = st.text_input(
-            "Buscar município", key="busca_top20"
-        )
+        termo = st.text_input("Buscar município", key="busca_top20")
         ranking = filtrar_busca(ranking, termo, ("municipio",))
         tabela(
             ranking.sort_values("ranking").head(20),
@@ -663,9 +655,9 @@ with aba_estados:
 
     st.markdown("**10 · Ranking estadual por ano**")
     busca_uf = st.text_input("Buscar UF", key="busca_ranking_uf")
-    tabela_estados = filtrar_busca(
-        dados_ano, busca_uf, ("uf", "destaque")
-    ).sort_values("ranking_no_ano")
+    tabela_estados = filtrar_busca(dados_ano, busca_uf, ("uf", "destaque")).sort_values(
+        "ranking_no_ano"
+    )
     tabela(
         tabela_estados,
         {
@@ -688,15 +680,19 @@ with aba_municipios:
         "ranking_municipios_evolucao_rendimento_agregado_2000_2025"
     ]
     cards_municipais = st.columns(3)
-    maior_expansao = expansao.sort_values(
-        "crescimento_area_hectares", ascending=False
-    ).head(1).iloc[0]
-    maior_aumento = aumento_producao.sort_values(
-        "aumento_quantidade_toneladas", ascending=False
-    ).head(1).iloc[0]
-    maior_rendimento = rendimento_municipal.sort_values(
-        "ranking", ascending=True
-    ).head(1).iloc[0]
+    maior_expansao = (
+        expansao.sort_values("crescimento_area_hectares", ascending=False)
+        .head(1)
+        .iloc[0]
+    )
+    maior_aumento = (
+        aumento_producao.sort_values("aumento_quantidade_toneladas", ascending=False)
+        .head(1)
+        .iloc[0]
+    )
+    maior_rendimento = (
+        rendimento_municipal.sort_values("ranking", ascending=True).head(1).iloc[0]
+    )
     cards_municipais[0].metric(
         f"Maior expansão de área · {maior_expansao['municipio']}",
         f"{painel.numero(maior_expansao['crescimento_area_hectares'])} ha",
@@ -735,9 +731,7 @@ with aba_municipios:
         )
 
     expansao_filtrada = filtrar_municipios(expansao, uf_filtro, busca_municipio)
-    aumento_filtrado = filtrar_municipios(
-        aumento_producao, uf_filtro, busca_municipio
-    )
+    aumento_filtrado = filtrar_municipios(aumento_producao, uf_filtro, busca_municipio)
     rendimento_filtrado = filtrar_municipios(
         rendimento_municipal, uf_filtro, busca_municipio
     )
@@ -791,9 +785,7 @@ with aba_municipios:
     )
 
     st.markdown("**09 · Área aumentou, produção não acompanhou · 2000–2025**")
-    st.warning(
-        "Lista de casos para investigação; não constitui diagnóstico da causa."
-    )
+    st.warning("Lista de casos para investigação; não constitui diagnóstico da causa.")
     tabela(
         alertas,
         {
@@ -817,9 +809,7 @@ with aba_produtividade:
         "são indicadores distintos."
     )
 
-    rendimento_cultura = marts[
-        "ranking_aumento_rendimento_medio_por_cultura_2000_2025"
-    ]
+    rendimento_cultura = marts["ranking_aumento_rendimento_medio_por_cultura_2000_2025"]
     grafico_coluna, tabela_coluna = st.columns(2)
     with grafico_coluna:
         st.markdown("**11 · Rendimento nacional por cultura · 2000–2025**")

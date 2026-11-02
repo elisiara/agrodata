@@ -290,9 +290,7 @@ def grafico_evolucao_valor(df: pd.DataFrame) -> go.Figure:
     return _layout(figura, 390)
 
 
-def grafico_mapa_estados(
-    df: pd.DataFrame, ano: int, metrica: str
-) -> go.Figure:
+def grafico_mapa_estados(df: pd.DataFrame, ano: int, metrica: str) -> go.Figure:
     colunas = {
         "Produção (t)": "quantidade_produzida_toneladas",
         "Participação nacional (%)": "participacao_nacional_percentual",
@@ -349,9 +347,7 @@ def grafico_mapa_estados(
 
 
 def grafico_participacao_estados(df: pd.DataFrame) -> go.Figure:
-    ordenado = df.sort_values(
-        "participacao_nacional_percentual", ascending=False
-    )
+    ordenado = df.sort_values("participacao_nacional_percentual", ascending=False)
     figura = px.bar(
         ordenado,
         x="participacao_nacional_percentual",
@@ -366,7 +362,9 @@ def grafico_participacao_estados(df: pd.DataFrame) -> go.Figure:
         color_discrete_sequence=["#4a9367"],
     )
     figura.update_yaxes(
-        categoryorder="array", categoryarray=ordenado["uf"].tolist(), autorange="reversed"
+        categoryorder="array",
+        categoryarray=ordenado["uf"].tolist(),
+        autorange="reversed",
     )
     figura.update_xaxes(ticksuffix="%")
     return _layout(figura, 520)
@@ -462,7 +460,9 @@ def grafico_variacao_producao(df: pd.DataFrame) -> go.Figure:
         )
     figura.add_vline(x=0, line_color="#758178", line_width=1)
     figura.update_layout(barmode="overlay")
-    figura.update_xaxes(title_text="Variação da quantidade produzida (%)", ticksuffix="%")
+    figura.update_xaxes(
+        title_text="Variação da quantidade produzida (%)", ticksuffix="%"
+    )
     figura.update_yaxes(title_text="Cultura", autorange="reversed")
     return _layout(figura, 370)
 
@@ -524,7 +524,9 @@ def grafico_rendimento_culturas(df: pd.DataFrame) -> go.Figure:
         )
 
     figura.update_yaxes(
-        categoryorder="array", categoryarray=ordenado["cultura"].tolist(), autorange="reversed"
+        categoryorder="array",
+        categoryarray=ordenado["cultura"].tolist(),
+        autorange="reversed",
     )
     figura.update_xaxes(title_text="Rendimento médio (kg/ha)")
     return _layout(figura, 440)

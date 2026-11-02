@@ -50,8 +50,7 @@ def gravar(
     con.register(relacao, df)
     try:
         con.execute(
-            f"CREATE OR REPLACE TABLE {destino} "
-            f"AS SELECT * FROM {relacao_sql}"
+            f"CREATE OR REPLACE TABLE {destino} AS SELECT * FROM {relacao_sql}"
         ).fetchall()
     finally:
         con.unregister(relacao)

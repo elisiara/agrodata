@@ -177,9 +177,7 @@ def _validar_numeros(
         ) from erro
 
 
-def _validar_ano(
-    con: duckdb.DuckDBPyConnection, tabela_origem: str
-) -> None:
+def _validar_ano(con: duckdb.DuckDBPyConnection, tabela_origem: str) -> None:
     coluna = _identificador("Ano")
     origem = _tabela(SCHEMA_RAW, tabela_origem)
     invalido = con.execute(
@@ -224,9 +222,7 @@ def _validar_chaves(
         f"c{indice} := t.{_identificador(coluna)}"
         for indice, coluna in enumerate(colunas)
     )
-    campos_chave = ", ".join(
-        f"t.{_identificador(chave)}" for chave in chaves
-    )
+    campos_chave = ", ".join(f"t.{_identificador(chave)}" for chave in chaves)
     conflitos = con.execute(
         f"""
         SELECT {campos_chave}
@@ -243,8 +239,7 @@ def _validar_chaves(
     exemplos: list[str] = []
     for chave_valores in conflitos:
         condicoes = " AND ".join(
-            f"{_identificador(chave)} IS NOT DISTINCT FROM ?"
-            for chave in chaves
+            f"{_identificador(chave)} IS NOT DISTINCT FROM ?" for chave in chaves
         )
         linhas = con.execute(
             f"""
@@ -300,8 +295,7 @@ def _expressao_medida(
 def _projecao_pam(tipo_medida: str) -> tuple[list[str], list[str]]:
     definicoes = list(COLUNAS_IDENTIFICADORAS_PAM)
     definicoes.extend(
-        (origem, destino, tipo_medida)
-        for origem, destino in COLUNAS_MEDIDA
+        (origem, destino, tipo_medida) for origem, destino in COLUNAS_MEDIDA
     )
     projecao = []
     saidas = []
@@ -309,13 +303,10 @@ def _projecao_pam(tipo_medida: str) -> tuple[list[str], list[str]]:
         saidas.append(destino)
         if tipo in {"VARCHAR", "SMALLINT"}:
             projecao.append(
-                f"CAST({_identificador(origem)} AS {tipo}) "
-                f"AS {_identificador(destino)}"
+                f"CAST({_identificador(origem)} AS {tipo}) AS {_identificador(destino)}"
             )
         else:
-            projecao.append(
-                _expressao_medida(origem, destino, tipo)
-            )
+            projecao.append(_expressao_medida(origem, destino, tipo))
     return projecao, saidas
 
 
@@ -327,9 +318,7 @@ def _criar_tabela(
 ) -> tuple[int, int]:
     origem = _tabela(SCHEMA_RAW, tabela_origem)
     destino = _tabela(SCHEMA_REFINED, tabela_refinada)
-    linhas_entrada = int(
-        con.execute(f"SELECT count(*) FROM {origem}").fetchone()[0]
-    )
+    linhas_entrada = int(con.execute(f"SELECT count(*) FROM {origem}").fetchone()[0])
     con.execute(
         f"""
         CREATE OR REPLACE TABLE {destino} AS
@@ -337,9 +326,7 @@ def _criar_tabela(
         FROM (SELECT DISTINCT * FROM {origem})
         """
     ).fetchall()
-    linhas_saida = int(
-        con.execute(f"SELECT count(*) FROM {destino}").fetchone()[0]
-    )
+    linhas_saida = int(con.execute(f"SELECT count(*) FROM {destino}").fetchone()[0])
     return linhas_entrada, linhas_saida
 
 
@@ -351,8 +338,7 @@ def _verificar_tabelas_entrada(con: duckdb.DuckDBPyConnection) -> None:
     existentes = {
         linha[0]
         for linha in con.execute(
-            "SELECT table_name FROM information_schema.tables "
-            "WHERE table_schema = ?",
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = ?",
             [SCHEMA_RAW],
         ).fetchall()
     }
@@ -377,8 +363,7 @@ def _validar_entradas(con: duckdb.DuckDBPyConnection) -> None:
     for origem, _, tipo_medida in TABELAS_PAM:
         definicoes = list(COLUNAS_IDENTIFICADORAS_PAM)
         definicoes.extend(
-            (coluna, nome, tipo_medida)
-            for coluna, nome in COLUNAS_MEDIDA
+            (coluna, nome, tipo_medida) for coluna, nome in COLUNAS_MEDIDA
         )
         colunas = [coluna for coluna, _, _ in definicoes]
         _validar_colunas(con, origem, colunas)
@@ -399,8 +384,7 @@ def main() -> None:
 
         definicoes_municipio = list(COLUNAS_MUNICIPIO)
         projecao_municipio = [
-            f"CAST({_identificador(origem)} AS {tipo}) "
-            f"AS {_identificador(destino)}"
+            f"CAST({_identificador(origem)} AS {tipo}) AS {_identificador(destino)}"
             for origem, destino, tipo in definicoes_municipio
         ]
         entrada, saida = _criar_tabela(
@@ -424,9 +408,7 @@ def main() -> None:
 
         for origem, destino, tipo_medida in TABELAS_PAM:
             projecao, colunas_saida = _projecao_pam(tipo_medida)
-            entrada, saida = _criar_tabela(
-                con, origem, destino, projecao
-            )
+            entrada, saida = _criar_tabela(con, origem, destino, projecao)
             nulos = _contagem_nulos(con, destino, colunas_saida)
             print(
                 f"refined.{destino}  {_formatar_milhar(entrada)} -> "

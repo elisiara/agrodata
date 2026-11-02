@@ -129,18 +129,18 @@ def cartao(rotulo: str, valor: str) -> str:
 
 
 def cartoes_html(itens: list[tuple[str, str]]) -> str:
-    return '<div class="cards">' + "".join(
-        cartao(rotulo, valor) for rotulo, valor in itens
-    ) + "</div>"
+    return (
+        '<div class="cards">'
+        + "".join(cartao(rotulo, valor) for rotulo, valor in itens)
+        + "</div>"
+    )
 
 
 def tabela_html(dados: pd.DataFrame, colunas: Mapping[str, str]) -> str:
     cabecalho = "".join(f"<th>{escape(rotulo)}</th>" for rotulo in colunas.values())
     linhas = []
     for linha in dados.loc[:, list(colunas)].itertuples(index=False, name=None):
-        celulas = "".join(
-            f"<td>{escape(str(valor))}</td>" for valor in linha
-        )
+        celulas = "".join(f"<td>{escape(str(valor))}</td>" for valor in linha)
         linhas.append(f"<tr>{celulas}</tr>")
     return (
         '<div class="panel table-wrap"><table><thead><tr>'
@@ -183,13 +183,10 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
 
     evolucao = marts["evolucao_valor_producao_por_cultura_2000_2025"]
     evolucao = evolucao.loc[
-        evolucao["ano"].between(2000, 2025)
-        & evolucao["cultura"].isin(painel.CULTURAS)
+        evolucao["ano"].between(2000, 2025) & evolucao["cultura"].isin(painel.CULTURAS)
     ]
 
-    distribuicao = marts[
-        "distribuicao_geografica_producao_por_estado_2000_2025"
-    ]
+    distribuicao = marts["distribuicao_geografica_producao_por_estado_2000_2025"]
     dados_ano = distribuicao.loc[distribuicao["ano"].eq(2025)]
     lider = dados_ano.sort_values("ranking_no_ano").iloc[0]
     cards_estado = cartoes_html(
@@ -229,9 +226,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     )
 
     expansao = marts["municipios_maior_expansao_area_plantada"]
-    aumento_producao = marts[
-        "municipios_maior_aumento_quantidade_produzida_2000_2025"
-    ]
+    aumento_producao = marts["municipios_maior_aumento_quantidade_produzida_2000_2025"]
     rendimento_municipal = marts[
         "ranking_municipios_evolucao_rendimento_agregado_2000_2025"
     ]
@@ -259,12 +254,8 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         ]
     )
 
-    variacao = marts[
-        "variacao_percentual_quantidade_produzida_por_cultura_2024_2025"
-    ]
-    diferenca_area = marts[
-        "diferenca_area_plantada_colhida_por_estado_2025"
-    ]
+    variacao = marts["variacao_percentual_quantidade_produzida_por_cultura_2024_2025"]
+    diferenca_area = marts["diferenca_area_plantada_colhida_por_estado_2025"]
     composicao_ordenada = composicao_uf.sort_values("ranking_no_estado")
     distribuicao_ordenada = dados_ano.sort_values("ranking_no_ano")
     cultura_valor = painel.CULTURAS[0]
@@ -273,9 +264,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         valor_hectare["cultura"].eq(cultura_valor)
     ].sort_values("ranking_na_cultura")
 
-    rendimento_cultura = marts[
-        "ranking_aumento_rendimento_medio_por_cultura_2000_2025"
-    ]
+    rendimento_cultura = marts["ranking_aumento_rendimento_medio_por_cultura_2000_2025"]
     alertas = marts["expansao_area_sem_aumento_producao_2000_2025"]
     area_colhida = marts["percentual_area_plantada_colhida_em_2025"]
     html_graficos = [
@@ -331,17 +320,13 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         ),
     ]
 
-    tabela_lideres = marts[
-        "ranking_valor_da_producao_muncipio_por_cultura"
-    ]
+    tabela_lideres = marts["ranking_valor_da_producao_muncipio_por_cultura"]
     tabela_area_estado = diferenca_area.sort_values(
         "diferenca_area_plantada_colhida_hectares", ascending=False
     )
     tabela_expansao = expansao.sort_values("ranking").head(10)
     tabela_aumento = aumento_producao.sort_values("ranking_2025").head(10)
-    tabela_rendimento_municipal = rendimento_municipal.sort_values(
-        "ranking"
-    ).head(20)
+    tabela_rendimento_municipal = rendimento_municipal.sort_values("ranking").head(20)
     tabela_rendimento_cultura = rendimento_cultura.sort_values("ranking_aumento")
     tabela_valor = ranking_cultura[
         [
@@ -379,141 +364,209 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     <h2>Panorama da produção</h2>
     <p class="caption">Indicadores nacionais de 2025 e evolução das culturas PAM.</p>
     <div class="grade">
-      <div><h3>05 · Área plantada: colhida × não colhida</h3><p class="caption">Brasil · 2025 · participação percentual</p>{html_graficos[0]}</div>
-      <div><h3>08 · Evolução do valor da produção</h3><p class="caption">Brasil · 2000–2025 · mil R$</p>{html_graficos[1]}<p class="caption">Série completa e sete culturas; sem recorte de período.</p></div>
+      <div><h3>05 · Área plantada: colhida × não colhida</h3><p class="caption">Brasil · 2025 · participação percentual</p>{
+        html_graficos[0]
+    }</div>
+      <div><h3>08 · Evolução do valor da produção</h3><p class="caption">Brasil · 2000–2025 · mil R$</p>{
+        html_graficos[1]
+    }<p class="caption">Série completa e sete culturas; sem recorte de período.</p></div>
     </div>
     <h3>Municípios em destaque · líder por cultura · 2000–2025</h3>
-    {tabela_html(tabela_lideres, {
-        "cultura": "Cultura",
-        "municipio": "Município líder",
-        "uf": "UF",
-        "valor_total_producao_mil_reais": "Valor total (mil R$)",
-    })}
+    {
+        tabela_html(
+            tabela_lideres,
+            {
+                "cultura": "Cultura",
+                "municipio": "Município líder",
+                "uf": "UF",
+                "valor_total_producao_mil_reais": "Valor total (mil R$)",
+            },
+        )
+    }
   </section>
   <section class="faixa" id="estados">
     <h2>Distribuição por estado</h2>
     <p class="caption">Produção e participação estadual nos anos disponíveis · padrão: 2025.</p>
     {cards_estado}
     <div class="grade">
-      <div><h3>10 · Produção agrícola por UF</h3><p class="caption">Grade esquemática; não representa contornos geográficos.</p>{html_graficos[2]}</div>
-      <div><h3>10 · Estados com maior participação</h3><p class="caption">2025 · participação nacional e volume produzido</p>{html_graficos[3]}</div>
-      <div><h3>10 · Comparação da produção por UF</h3><p class="caption">Produção (t) · 2000 e 2025</p>{html_graficos[4]}</div>
-      <div><h3>06 · Área plantada versus colhida por UF</h3><p class="caption">2025 · hectares</p>{html_graficos[5]}
-        {tabela_html(tabela_area_estado, {
-            "uf": "UF",
-            "area_plantada_total_hectares": "Plantada (ha)",
-            "area_colhida_total_hectares": "Colhida (ha)",
-            "diferenca_area_plantada_colhida_hectares": "Diferença (ha)",
-        })}
+      <div><h3>10 · Produção agrícola por UF</h3><p class="caption">Grade esquemática; não representa contornos geográficos.</p>{
+        html_graficos[2]
+    }</div>
+      <div><h3>10 · Estados com maior participação</h3><p class="caption">2025 · participação nacional e volume produzido</p>{
+        html_graficos[3]
+    }</div>
+      <div><h3>10 · Comparação da produção por UF</h3><p class="caption">Produção (t) · 2000 e 2025</p>{
+        html_graficos[4]
+    }</div>
+      <div><h3>06 · Área plantada versus colhida por UF</h3><p class="caption">2025 · hectares</p>{
+        html_graficos[5]
+    }
+        {
+        tabela_html(
+            tabela_area_estado,
+            {
+                "uf": "UF",
+                "area_plantada_total_hectares": "Plantada (ha)",
+                "area_colhida_total_hectares": "Colhida (ha)",
+                "diferenca_area_plantada_colhida_hectares": "Diferença (ha)",
+            },
+        )
+    }
       </div>
     </div>
     <h3>15 · Composição do valor por cultura e UF · 2025 · {escape(uf_selecionada)}</h3>
     {cards_composicao}
     <div class="grade">
       <div>{html_graficos[6]}</div>
-      <div>{tabela_html(composicao_ordenada, {
-          "uf": "UF",
-          "cultura": "Cultura",
-          "valor_producao_mil_reais": "Valor (mil R$)",
-          "valor_total_estado_mil_reais": "Total estadual (mil R$)",
-          "participacao_valor_estado_percentual": "Participação (%)",
-          "ranking_no_estado": "Posição",
-          "indice_concentracao_hhi": "HHI",
-          "numero_efetivo_culturas": "Nº efetivo de culturas",
-      })}</div>
+      <div>{
+        tabela_html(
+            composicao_ordenada,
+            {
+                "uf": "UF",
+                "cultura": "Cultura",
+                "valor_producao_mil_reais": "Valor (mil R$)",
+                "valor_total_estado_mil_reais": "Total estadual (mil R$)",
+                "participacao_valor_estado_percentual": "Participação (%)",
+                "ranking_no_estado": "Posição",
+                "indice_concentracao_hhi": "HHI",
+                "numero_efetivo_culturas": "Nº efetivo de culturas",
+            },
+        )
+    }</div>
     </div>
     <h3>10 · Ranking estadual por ano · 2025</h3>
-    {tabela_html(distribuicao_ordenada, {
-        "uf": "UF",
-        "ano": "Ano",
-        "ranking_no_ano": "Posição",
-        "quantidade_produzida_toneladas": "Produção (t)",
-        "participacao_nacional_percentual": "Participação (%)",
-        "destaque": "Destaque",
-    })}
+    {
+        tabela_html(
+            distribuicao_ordenada,
+            {
+                "uf": "UF",
+                "ano": "Ano",
+                "ranking_no_ano": "Posição",
+                "quantidade_produzida_toneladas": "Produção (t)",
+                "participacao_nacional_percentual": "Participação (%)",
+                "destaque": "Destaque",
+            },
+        )
+    }
   </section>
   <section class="faixa" id="expansao">
     <h2>Expansão e rankings</h2>
     <p class="caption">Comparações de 2000 a 2025 e variação anual de 2024 a 2025.</p>
     {cards_municipais}
     <div class="grade">
-      <div><h3>04 · Variação da produção por cultura</h3><p class="caption">2024 → 2025 · variação percentual nacional</p>{html_graficos[7]}</div>
+      <div><h3>04 · Variação da produção por cultura</h3><p class="caption">2024 → 2025 · variação percentual nacional</p>{
+        html_graficos[7]
+    }</div>
       <div><h3>Filtros dos rankings municipais</h3><p>UF: Todas · Município/código IBGE: sem busca</p><p class="caption">03 e 07 não retornam UF; as tabelas aplicam o universo materializado. Sem filtro individual por cultura.</p></div>
     </div>
     <h3>03 · Municípios com maior expansão de área · 2000–2025</h3>
-    {tabela_html(tabela_expansao, {
-        "ranking": "Posição",
-        "codigo_municipio_ibge": "Código IBGE",
-        "municipio": "Município",
-        "area_plantada_2000_hectares": "Área 2000 (ha)",
-        "area_plantada_2025_hectares": "Área 2025 (ha)",
-        "crescimento_area_hectares": "Aumento (ha)",
-        "crescimento_area_percentual": "Aumento (%)",
-    })}
+    {
+        tabela_html(
+            tabela_expansao,
+            {
+                "ranking": "Posição",
+                "codigo_municipio_ibge": "Código IBGE",
+                "municipio": "Município",
+                "area_plantada_2000_hectares": "Área 2000 (ha)",
+                "area_plantada_2025_hectares": "Área 2025 (ha)",
+                "crescimento_area_hectares": "Aumento (ha)",
+                "crescimento_area_percentual": "Aumento (%)",
+            },
+        )
+    }
     <h3>07 · Municípios com maior aumento de produção · 2000–2025</h3>
-    {tabela_html(tabela_aumento, {
-        "ranking_2025": "Posição",
-        "codigo_municipio_ibge": "Código IBGE",
-        "municipio": "Município",
-        "quantidade_2000_toneladas": "Quantidade 2000 (t)",
-        "quantidade_2025_toneladas": "Quantidade 2025 (t)",
-        "aumento_quantidade_toneladas": "Aumento (t)",
-    })}
+    {
+        tabela_html(
+            tabela_aumento,
+            {
+                "ranking_2025": "Posição",
+                "codigo_municipio_ibge": "Código IBGE",
+                "municipio": "Município",
+                "quantidade_2000_toneladas": "Quantidade 2000 (t)",
+                "quantidade_2025_toneladas": "Quantidade 2025 (t)",
+                "aumento_quantidade_toneladas": "Aumento (t)",
+            },
+        )
+    }
     <h3>14 · Maiores aumentos de rendimento agregado · 2000–2025</h3>
     <p class="caption">Indicador agregado das culturas, não rendimento de cultura individual.</p>
-    {tabela_html(tabela_rendimento_municipal, {
-        "ranking": "Posição",
-        "codigo_municipio_ibge": "Código IBGE",
-        "municipio": "Município",
-        "uf": "UF",
-        "rendimento_2000_kg_por_hectare": "Rendimento 2000 (kg/ha)",
-        "rendimento_2025_kg_por_hectare": "Rendimento 2025 (kg/ha)",
-        "aumento_rendimento_kg_por_hectare": "Aumento (kg/ha)",
-        "aumento_rendimento_percentual": "Aumento (%)",
-    })}
+    {
+        tabela_html(
+            tabela_rendimento_municipal,
+            {
+                "ranking": "Posição",
+                "codigo_municipio_ibge": "Código IBGE",
+                "municipio": "Município",
+                "uf": "UF",
+                "rendimento_2000_kg_por_hectare": "Rendimento 2000 (kg/ha)",
+                "rendimento_2025_kg_por_hectare": "Rendimento 2025 (kg/ha)",
+                "aumento_rendimento_kg_por_hectare": "Aumento (kg/ha)",
+                "aumento_rendimento_percentual": "Aumento (%)",
+            },
+        )
+    }
     <h3>09 · Área aumentou, produção não acompanhou · 2000–2025</h3>
     <p class="caption">Lista de casos para investigação; não constitui diagnóstico da causa.</p>
-    {tabela_html(alertas, {
-        "codigo_municipio_ibge": "Código IBGE",
-        "municipio": "Município",
-        "uf": "UF",
-        "area_plantada_2000_hectares": "Área 2000 (ha)",
-        "area_plantada_2025_hectares": "Área 2025 (ha)",
-        "aumento_area_hectares": "Aumento de área (ha)",
-        "quantidade_2000_toneladas": "Quantidade 2000 (t)",
-        "quantidade_2025_toneladas": "Quantidade 2025 (t)",
-        "variacao_quantidade_toneladas": "Variação da quantidade (t)",
-    })}
+    {
+        tabela_html(
+            alertas,
+            {
+                "codigo_municipio_ibge": "Código IBGE",
+                "municipio": "Município",
+                "uf": "UF",
+                "area_plantada_2000_hectares": "Área 2000 (ha)",
+                "area_plantada_2025_hectares": "Área 2025 (ha)",
+                "aumento_area_hectares": "Aumento de área (ha)",
+                "quantidade_2000_toneladas": "Quantidade 2000 (t)",
+                "quantidade_2025_toneladas": "Quantidade 2025 (t)",
+                "variacao_quantidade_toneladas": "Variação da quantidade (t)",
+            },
+        )
+    }
   </section>
   <section class="faixa" id="produtividade">
     <h2>Produtividade e valor por hectare</h2>
     <p class="caption">Rendimento físico nacional (kg/ha) e valor bruto municipal (R$/ha) são indicadores distintos.</p>
     <div class="grade">
-      <div><h3>11 · Rendimento nacional por cultura · 2000–2025</h3><p class="caption">Dumbbell · kg/ha · ordenado pelo aumento percentual do mart</p>{html_graficos[8]}</div>
+      <div><h3>11 · Rendimento nacional por cultura · 2000–2025</h3><p class="caption">Dumbbell · kg/ha · ordenado pelo aumento percentual do mart</p>{
+        html_graficos[8]
+    }</div>
       <div><h3>11 · Rendimento por cultura</h3>
-        {tabela_html(tabela_rendimento_cultura, {
-            "ranking_aumento": "Posição",
-            "cultura": "Cultura",
-            "rendimento_2000_kg_por_hectare": "2000 (kg/ha)",
-            "rendimento_2025_kg_por_hectare": "2025 (kg/ha)",
-            "aumento_rendimento_kg_por_hectare": "Aumento (kg/ha)",
-            "aumento_percentual": "Variação (%)",
-        })}
+        {
+        tabela_html(
+            tabela_rendimento_cultura,
+            {
+                "ranking_aumento": "Posição",
+                "cultura": "Cultura",
+                "rendimento_2000_kg_por_hectare": "2000 (kg/ha)",
+                "rendimento_2025_kg_por_hectare": "2025 (kg/ha)",
+                "aumento_rendimento_kg_por_hectare": "Aumento (kg/ha)",
+                "aumento_percentual": "Variação (%)",
+            },
+        )
+    }
       </div>
     </div>
     <h3>13 · Valor bruto por hectare · municípios · 2025</h3>
-    <p class="caption">Cultura padrão: {escape(cultura_valor)}. Valor bruto não representa lucro. Conversão de mil R$/ha para R$/ha aplicada somente para apresentação.</p>
+    <p class="caption">Cultura padrão: {
+        escape(cultura_valor)
+    }. Valor bruto não representa lucro. Conversão de mil R$/ha para R$/ha aplicada somente para apresentação.</p>
     <div class="grade">
       <div><h3>Top 10 · valor bruto por hectare</h3>{html_graficos[9]}</div>
       <div><h3>Ranking detalhado · R$/ha</h3>
-        {tabela_html(tabela_valor, {
-            "ranking_na_cultura": "Posição",
-            "municipio": "Município",
-            "uf": "UF",
-            "valor_producao_mil_reais": "Valor da produção (mil R$)",
-            "area_colhida_hectares": "Área colhida (ha)",
-            "valor_bruto_por_hectare": "Valor bruto por hectare (R$/ha)",
-        })}
+        {
+        tabela_html(
+            tabela_valor,
+            {
+                "ranking_na_cultura": "Posição",
+                "municipio": "Município",
+                "uf": "UF",
+                "valor_producao_mil_reais": "Valor da produção (mil R$)",
+                "area_colhida_hectares": "Área colhida (ha)",
+                "valor_bruto_por_hectare": "Valor bruto por hectare (R$/ha)",
+            },
+        )
+    }
       </div>
     </div>
   </section>
