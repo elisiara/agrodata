@@ -13,6 +13,10 @@ Pipeline analítico de ponta a ponta projetado para processar, validar e explora
 - 📦 **Repositório do Projeto:** [github.com/elisiara/agrodata](https://github.com/elisiara/agrodata)
 - 📑 **Relatório Executivo:** Gerado localmente em HTML estático reutilizável (`relatorio.html`).
 
+<p align="center">
+  <img src="docs/assets/dashboard_panorama.png" alt="Visão Geral do Dashboard AgroData" width="100%">
+</p>
+
 ---
 
 ## 📌 Sumário
@@ -67,6 +71,8 @@ agrodata/
 ├── .agents/                 # Especificações formais das etapas (Spec-Driven Development)
 ├── data/                    # Malhas geográficas (GeoJSON de UFs brasileiras)
 ├── design/                  # Protótipos de interface e rascunhos visuais
+├── docs/
+│   └── assets/              # Capturas de tela do dashboard para documentação
 ├── pipeline/                # Scripts do pipeline ELT
 │   ├── db.py                # Conexão centralizada com agrodata.duckdb e utilitários
 │   ├── ingestao.py          # Leitura de CSVs e carga na camada raw
@@ -261,12 +267,35 @@ Cada mart é gerado a partir de um arquivo SQL dedicado em `sql/marts/`:
 ## 🖥️ Aplicações de Consumo
 
 ### 1. Dashboard Streamlit (`app.py` & `painel.py`)
-O painel opera em layout panorâmico com atualização de cache sob demanda:
-- **Cartões Nacionais Fixos (Topo):** Indicadores agregados de 2025 (R$ 553,24 bi em valor, 313,26 mi t produzidas, 79,27 mi ha colhidos e rendimento médio de 3,95 t/ha).
-- **Aba 1 — Panorama:** Gráfico de rosca de perdas de safra, evolução histórica das 7 culturas com seleção de período e líderes municipais.
-- **Aba 2 — Distribuição por Estado:** Mapa coroplético e gráficos de participação por UF sincronizados por seletor de ano, além do índice de concentração HHI.
-- **Aba 3 — Expansão e Rankings:** Balanço 2024–2025, rankings municipais de expansão e lista investigativa de municípios com expansão sem ganho de produção.
-- **Aba 4 — Produtividade e Valor/ha:** Comparação física de rendimento e ranking de eficiência de receita bruta por hectare colhido.
+O painel opera em layout panorâmico (`layout="wide"`), com cache inteligente e visualização orientada a tomada de decisão. O topo exibe **quatro cartões executivos de 2025** (R$ 553,24 bi em valor, 313,26 mi t produzidas, 79,27 mi ha colhidos e 3,95 t/ha de rendimento médio) que permanecem visíveis em todas as abas.
+
+#### 🌾 Aba 1 — Panorama da Produção Agrícola
+Apresenta o balanço nacional de perdas (área colhida vs. não colhida), a evolução anual do valor da produção das 7 culturas com seletor de intervalo de anos e a identificação do município líder histórico (2000–2025) ou do Top 20 de 2025.
+
+<p align="center">
+  <img src="docs/assets/dashboard_panorama.png" alt="Aba 1 - Panorama da Produção Agrícola" width="100%">
+</p>
+
+#### 🗺️ Aba 2 — Distribuição por Estado
+Permite navegar pela série histórica (2000 a 2025) sincronizando o mapa coroplético do Brasil, o ranking de estados líderes e o gráfico de participação estadual. Traz ainda a análise de concentração produtiva da UF selecionada com cálculo do índice HHI e número efetivo de culturas.
+
+<p align="center">
+  <img src="docs/assets/dashboard_distribuicao_por_estado.png" alt="Aba 2 - Distribuição por Estado" width="100%">
+</p>
+
+#### 📈 Aba 3 — Expansão e Rankings
+Compara a safra recente (2024 vs. 2025) e lista os municípios com maior expansão de área e ganho de volume colhido. Inclui a lista investigativa de municípios onde a área plantada cresceu sem aumento proporcional na produção.
+
+<p align="center">
+  <img src="docs/assets/dashboard_expansao_e_rankings.png" alt="Aba 3 - Expansão e Rankings" width="100%">
+</p>
+
+#### 🚜 Aba 4 — Produtividade e Valor por Hectare
+Contrapõe os ganhos de rendimento físico (kg/ha) de cada cultura entre 2000 e 2025 e apresenta o ranking municipal de valor bruto por hectare colhido (R$/ha), permitindo analisar a rentabilidade bruta agregada da terra por cultura.
+
+<p align="center">
+  <img src="docs/assets/dashboard_produtividade_e_valor_ha.png" alt="Aba 4 - Produtividade e Valor por Hectare" width="100%">
+</p>
 
 ### 2. Relatório Executivo HTML (`relatorio.py`)
 Gera um documento autônomo (`relatorio.html`) estilizado com paleta agrícola profissional, renderizando tabelas consolidadas e gráficos Plotly estáticos reutilizados de `painel.py`. Ideal para apresentações executivas offline sem necessidade de servidor ativo.
