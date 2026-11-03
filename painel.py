@@ -65,9 +65,9 @@ o líder municipal de cada cultura no período do mart; 02 apresenta até vinte
 municípios em 2025, com ordenação e busca.
 
 Aba Distribuição por estado:
-10 oferece somente 2000 ou 2025, sincronizando mapa, barras e tabela. Os cartões
-identificam estado líder, volume e participação. O mapa usa os limites estaduais
-do IBGE incluídos em data/brasil_ufs.geojson.
+10 oferece os anos retornados pela consulta entre 2000 e 2025, sincronizando
+mapa, barras e tabela. Os cartões identificam estado líder, volume e participação.
+O mapa usa os limites estaduais do IBGE incluídos em data/brasil_ufs.geojson.
 06 exibe área plantada, área colhida e diferença por UF em 2025. 15 mostra a
 composição das sete culturas da UF selecionada, participação, valor estadual,
 HHI entre 0 e 1 e número efetivo de culturas.
@@ -85,8 +85,9 @@ materializada é mil R$/ha; multiplicar por 1.000 é permitido somente para
 exibição em R$/ha. Valor bruto não é lucro nem desconta custos.
 
 Filtros nunca prometem afetar resultados sem a dimensão/anos correspondentes:
-08 aceita recorte de anos entre 2000 e 2025; 10 somente 2000 ou 2025; 01, 03,
-07, 09, 11 e 14 conservam as comparações/agregações do SQL; 02, 05, 06, 12,
+08 aceita recorte de anos entre 2000 e 2025; 10 permite selecionar os anos
+retornados pela consulta; 01, 03, 07, 09, 11 e 14 conservam as
+comparações/agregações do SQL; 02, 05, 06, 12,
 13 e 15 são referentes a 2025. Isso evita um filtro global enganoso.
 
 CACHE E ERROS
@@ -219,6 +220,10 @@ def _formatar(valor: object, casas: int) -> str:
         return "—"
     texto = f"{valor:,.{casas}f}"
     return texto.replace(",", "\0").replace(".", ",").replace("\0", ".")
+
+
+def anos_disponiveis(df: pd.DataFrame) -> tuple[int, ...]:
+    return tuple(sorted(int(ano) for ano in df["ano"].dropna().unique()))
 
 
 def reais(valor: object, casas: int = 2) -> str:

@@ -14,6 +14,12 @@ def test_formatadores_usam_notacao_brasileira_e_preservam_nulos():
     assert painel.numero(None) == "—"
 
 
+def test_anos_disponiveis_retorna_anos_unicos_em_ordem():
+    df = pd.DataFrame({"ano": [2025, 2000, 2024, 2000, None]})
+
+    assert painel.anos_disponiveis(df) == (2000, 2024, 2025)
+
+
 def test_ler_carrega_selects_e_fecha_conexao_para_escrita(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     con = duckdb.connect("agrodata.duckdb")
@@ -131,12 +137,15 @@ def test_grafico_participacao_estados_representa_todas_as_ufs():
 
 
 def test_grafico_comparacao_estados_tem_ponto_por_uf_e_ano():
+    anos = list(range(2000, 2026))
     df = pd.DataFrame(
         {
-            "uf": ["SP", "SP", "MG", "MG"],
-            "ano": [2000, 2025, 2000, 2025],
-            "quantidade_produzida_toneladas": [10, 20, 5, 15],
-            "participacao_nacional_percentual": [50, 60, 50, 40],
+            "uf": ["SP"] * len(anos) + ["MG"] * len(anos),
+            "ano": anos * 2,
+            "quantidade_produzida_toneladas": list(range(10, 36))
+            + list(range(5, 31)),
+            "participacao_nacional_percentual": [60] * len(anos)
+            + [40] * len(anos),
         }
     )
 

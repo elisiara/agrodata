@@ -105,7 +105,7 @@ SPEC
 
   ABA 2 — Distribuição por estado
     Controles no topo da aba:
-      Ano: 2000 ou 2025, conforme dados da consulta 10.
+      Ano: qualquer ano retornado pela consulta 10 entre 2000 e 2025.
       Métrica do mapa: produção (t) ou participação nacional (%).
 
     Faixa de três cartões:
@@ -118,7 +118,7 @@ SPEC
         Mapa coroplético do Brasil — "10 · Produção agrícola por UF"
         Colorir estados pela métrica selecionada; tooltip com UF, ano,
         produção e participação.
-        A consulta retorna 2000 e 2025. Não oferecer anos intermediários.
+        A consulta retorna os anos disponíveis entre 2000 e 2025.
         O mapa geográfico real exige GeoJSON/contornos estaduais; se isso
         ainda não estiver disponível, usar temporariamente a grade esquemática
         do HTML e identificá-la claramente como não geográfica.
@@ -130,7 +130,7 @@ SPEC
 
     Duas colunas:
       Barras/tabela — "10 · Comparação da produção por UF"
-        Comparar 2000 e 2025 por volume ou participação.
+        Comparar todos os anos disponíveis por volume ou participação.
       Tabela — "06 · Área plantada versus colhida por UF (2025)"
         UF, área plantada (ha), área colhida (ha) e diferença (ha).
 
@@ -240,7 +240,7 @@ SPEC
     Não inventar ou manter valores de exemplo como se fossem resultados reais.
     Períodos aceitos dependem do grão de cada consulta:
       08: recorte de anos individuais disponíveis entre 2000 e 2025.
-      10: somente 2000 e 2025.
+      10: anos disponíveis entre 2000 e 2025.
       01, 03, 07, 09, 11 e 14: comparações/agregações definidas no SQL.
       02, 05, 06, 12, 13 e 15: ano de referência 2025.
     Portanto, não criar um único filtro global de período que prometa afetar
@@ -283,9 +283,9 @@ CRITÉRIOS DE ACEITE
   UF e valor acumulado no período definido pela consulta. A visualização
   alternativa da consulta 02 apresenta no máximo 20 municípios de 2025,
   ordenados do maior para o menor valor de produção.
-- O painel estadual permite selecionar somente 2000 ou 2025 para os visuais
-  baseados na consulta 10. Mapa, barras e tabela refletem o mesmo ano
-  selecionado. Para cada ano, as participações estaduais totalizam 100%,
+- O painel estadual permite selecionar todos os anos disponíveis entre 2000 e
+  2025 para os visuais baseados na consulta 10. Mapa, barras e tabela refletem
+  o mesmo ano selecionado. Para cada ano, as participações estaduais totalizam 100%,
   considerando arredondamento e os estados retornados pela consulta.
 - O mapa distingue claramente um mapa geográfico de uma representação
   esquemática. Se forem usados contornos geográficos, cada UF apresentada

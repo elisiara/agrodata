@@ -19,13 +19,18 @@ COLUNAS_MEDIDA = (
 
 
 def _valores_municipais(tabela, codigo, ano):
+    if tabela == "quantidade_produzida":
+        bases = {
+            "1001": {2000: 1, 2024: 1, 2025: 3},
+            "1002": {2000: 1, 2024: 1, 2025: 2},
+        }
+        quantidade = bases[codigo].get(int(ano), int(ano) - 1999)
+        return [quantidade] * 7
+
     indice = {"2000": 0, "2024": 1, "2025": 2}[str(ano)]
     if tabela == "valor_da_producao":
         bases = {"1001": (1, 2, 10), "1002": (3, 5, 7)}
         return [bases[codigo][indice] * (posicao + 1) for posicao in range(7)]
-    if tabela == "quantidade_produzida":
-        bases = {"1001": (1, 1, 3), "1002": (1, 1, 2)}
-        return [bases[codigo][indice]] * 7
     if tabela == "area_plantada_ou_destinada_a_colheita":
         bases = {"1001": (1, 1, 2), "1002": (2, 2, 2)}
         return [bases[codigo][indice]] * 7
@@ -42,7 +47,7 @@ def _valores_brasil(tabela, ano):
             2000: [0, 5, 10, 15, 20, 25, 30],
             2024: [0, 10, 20, 30, 40, 50, 60],
             2025: [0, 20, 40, 60, 80, 100, 120],
-        }[ano]
+        }.get(ano, [(ano - 1999) * indice for indice in range(7)])
     if tabela == "area_plantada_ou_destinada_a_colheita":
         return [10 * (indice + 1) for indice in range(7)]
     if tabela == "area_colhida":
@@ -88,11 +93,12 @@ def _criar_refined(con):
             f"codigo_municipio_ibge VARCHAR, brasil_e_municipio VARCHAR, "
             f"ano SMALLINT, {medidas})"
         )
-        anos = (
-            (2000, 2024, 2025)
-            if tabela != "rendimento_medio_da_producao"
-            else (2000, 2025)
-        )
+        if tabela == "quantidade_produzida":
+            anos = range(2000, 2026)
+        elif tabela == "rendimento_medio_da_producao":
+            anos = (2000, 2025)
+        else:
+            anos = (2000, 2024, 2025)
         for codigo, nome in (("1001", "Alpha"), ("1002", "Beta")):
             for ano in anos:
                 # Cada cidade/ano é uma observação sintética; Alpha expande área,
@@ -286,7 +292,8 @@ def test_mart_10_calcula_participacao_por_estado_em_cada_ano(tmp_path):
     )
     ano_2025 = dados.loc[dados["ano"].eq(2025)].set_index("uf")
 
-    assert len(dados) == 4
+    assert len(dados) == 52
+    assert sorted(dados["ano"].unique()) == list(range(2000, 2026))
     assert ano_2025.loc["SP", "quantidade_produzida_toneladas"] == 21
     assert ano_2025.loc["MG", "quantidade_produzida_toneladas"] == 14
     assert ano_2025.loc["SP", "participacao_nacional_percentual"] == 60

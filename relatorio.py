@@ -291,7 +291,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         grafico_html(
             painel.grafico_comparacao_estados(distribuicao, "Produção (t)"),
             "g05",
-            "10 · Comparação da produção por UF · 2000 e 2025",
+            "10 · Comparação da produção por UF · 2000–2025",
         ),
         grafico_html(
             painel.grafico_area_por_estado(diferenca_area),
@@ -395,7 +395,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
       <div><h3>10 · Estados com maior participação</h3><p class="caption">2025 · participação nacional e volume produzido</p>{
         html_graficos[3]
     }</div>
-      <div><h3>10 · Comparação da produção por UF</h3><p class="caption">Produção (t) · 2000 e 2025</p>{
+      <div><h3>10 · Comparação da produção por UF</h3><p class="caption">Produção (t) · todos os anos disponíveis entre 2000 e 2025</p>{
         html_graficos[4]
     }</div>
       <div><h3>06 · Área plantada versus colhida por UF</h3><p class="caption">2025 · hectares</p>{

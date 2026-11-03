@@ -42,11 +42,21 @@ def _marts_sinteticos():
                     "participacao_nacional_percentual": participacao,
                     "destaque": "Maior produtor no ano" if ranking == 1 else None,
                 }
-                for ano, dados in (
-                    (2000, [("SP", 1, 100, 60), ("MG", 2, 70, 40)]),
-                    (2025, [("SP", 1, 200, 65), ("MG", 2, 100, 35)]),
+                for ano in range(2000, 2026)
+                for uf, ranking, volume, participacao in (
+                    (
+                        "SP",
+                        1,
+                        100 + 4 * (ano - 2000),
+                        60 + 0.2 * (ano - 2000),
+                    ),
+                    (
+                        "MG",
+                        2,
+                        70 + 1.2 * (ano - 2000),
+                        40 - 0.2 * (ano - 2000),
+                    ),
                 )
-                for uf, ranking, volume, participacao in dados
             ]
         ),
         "concentracao_valor_producao_por_cultura_estado_2025": pd.DataFrame(
@@ -215,6 +225,7 @@ def test_relatorio_gera_html_tem_metricas_graficos_e_rodape(
     assert html.count('class="card"') == 13
     assert 'id="g01"' in html
     assert 'id="g10"' in html
+    assert "todos os anos disponíveis entre 2000 e 2025" in html
     assert "Dados de " in html
     assert "Arquivo gerado:" in capsys.readouterr().out
 

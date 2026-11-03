@@ -530,13 +530,16 @@ with aba_panorama:
 with aba_estados:
     st.subheader("Distribuição geográfica por estado")
     st.caption("Compare produção e participação estadual nos anos disponíveis.")
+    distribuicao = marts["distribuicao_geografica_producao_por_estado_2000_2025"]
+    anos_estado = painel.anos_disponiveis(distribuicao)
+    if not anos_estado:
+        mostrar_erro_marts("A consulta 10 não retornou anos disponíveis.")
     ano_estado = st.selectbox(
         "Ano",
-        options=(2000, 2025),
-        index=1,
+        options=anos_estado,
+        index=len(anos_estado) - 1,
         key="ano_estados",
     )
-    distribuicao = marts["distribuicao_geografica_producao_por_estado_2000_2025"]
     dados_ano = distribuicao.loc[distribuicao["ano"].eq(ano_estado)]
     lider = dados_ano.sort_values("ranking_no_ano").head(1).iloc[0]
 

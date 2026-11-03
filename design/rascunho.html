@@ -382,10 +382,20 @@
           <div class="page-heading">
             <div><h2>Distribuição geográfica por estado</h2><p>Compare a quantidade produzida e a participação de cada UF no total nacional.</p></div>
             <label class="control">Ano do mapa&nbsp;
-              <select id="map-year" aria-label="Ano do mapa"><option>2025</option><option>2000</option></select>
+              <select id="map-year" aria-label="Ano do mapa">
+                <option>2025</option><option>2024</option><option>2023</option>
+                <option>2022</option><option>2021</option><option>2020</option>
+                <option>2019</option><option>2018</option><option>2017</option>
+                <option>2016</option><option>2015</option><option>2014</option>
+                <option>2013</option><option>2012</option><option>2011</option>
+                <option>2010</option><option>2009</option><option>2008</option>
+                <option>2007</option><option>2006</option><option>2005</option>
+                <option>2004</option><option>2003</option><option>2002</option>
+                <option>2001</option><option>2000</option>
+              </select>
             </label>
           </div>
-          <div class="sample-note">Valores do mapa e dos gráficos são ilustrativos. A consulta 10 retorna 2000 e 2025; as UFs estão em grade esquemática, não em contornos geográficos.</div>
+          <div class="sample-note">Valores do mapa e dos gráficos são ilustrativos. A consulta 10 retorna os anos disponíveis entre 2000 e 2025; as UFs estão em grade esquemática, não em contornos geográficos.</div>
           <div class="mini-kpis">
             <div class="mini-kpi"><span>Estado líder · exemplo</span><strong id="leader-state">MT · 18,2%</strong></div>
             <div class="mini-kpi"><span>Produção no estado líder</span><strong>— t</strong></div>
@@ -393,7 +403,7 @@
           </div>
           <div class="map-layout">
             <article class="card">
-              <div class="card-head"><div><h3>Produção agrícola por UF</h3><div class="card-sub">Passe o cursor ou selecione uma UF para ver o volume e a participação.</div></div><span class="tag">10 · 2000 e 2025</span></div>
+              <div class="card-head"><div><h3>Produção agrícola por UF</h3><div class="card-sub">Passe o cursor ou selecione uma UF para ver o volume e a participação.</div></div><span class="tag">10 · 2000–2025</span></div>
               <div class="map-tiles" aria-label="Mapa esquemático do Brasil por estado">
                 <button class="state-tile" style="grid-area:1/5" data-uf="RR">RR<small>2,1%</small></button>
                 <button class="state-tile" style="grid-area:2/4" data-uf="AP">AP<small>0,3%</small></button>
@@ -448,7 +458,7 @@
                 <div class="bar-row"><span class="label">PR</span><div class="bar-track"><div class="bar-fill" style="width:56%;opacity:.75"></div></div><span class="bar-value">8,9% · 25</span></div>
                 <div class="bar-row"><span class="label">GO</span><div class="bar-track"><div class="bar-fill" style="width:55%;opacity:.55"></div></div><span class="bar-value">8,7% · 25</span></div>
               </div>
-              <div class="note">Use agrupamento ou alternância de ano para comparar 2000 e 2025.</div>
+              <div class="note">Use agrupamento ou alternância de ano para comparar os anos disponíveis entre 2000 e 2025.</div>
             </article>
             <article class="card">
               <div class="card-head"><div><h3>Área plantada versus colhida por UF</h3><div class="card-sub">Diferença absoluta em hectares · 2025</div></div><span class="tag">06 · 2025</span></div>
