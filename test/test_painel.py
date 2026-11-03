@@ -153,6 +153,8 @@ def test_grafico_comparacao_estados_tem_ponto_por_uf_e_ano():
 
     assert isinstance(figura, go.Figure)
     assert sum(len(trace.x) for trace in figura.data) == len(df)
+    assert [trace.name for trace in figura.data] == [str(ano) for ano in anos]
+    assert len({trace.marker.color for trace in figura.data}) == len(anos)
 
 
 def test_grafico_area_por_estado_tem_duas_series_com_todas_as_ufs():

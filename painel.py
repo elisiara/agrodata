@@ -381,18 +381,27 @@ def grafico_comparacao_estados(df: pd.DataFrame, metrica: str) -> go.Figure:
         "Participação (%)": "participacao_nacional_percentual",
     }
     coluna_valor = colunas[metrica]
+    dados = df.sort_values(["uf", "ano"]).copy()
+    anos = sorted(dados["ano"].unique())
+    dados["ano"] = dados["ano"].astype(str)
+    inicio, fim = 0.3, 0.9
+    posicoes = [
+        inicio + (fim - inicio) * indice / max(len(anos) - 1, 1)
+        for indice in range(len(anos))
+    ]
     figura = px.bar(
-        df.sort_values(["uf", "ano"]),
+        dados,
         x="uf",
         y=coluna_valor,
         color="ano",
         barmode="group",
+        category_orders={"ano": [str(ano) for ano in anos]},
         labels={
             "uf": "UF",
             "ano": "Ano",
             coluna_valor: metrica,
         },
-        color_discrete_sequence=["#b7d77a", "#23734d"],
+        color_discrete_sequence=px.colors.sample_colorscale("Greens", posicoes),
     )
     return _layout(figura, 390)
 

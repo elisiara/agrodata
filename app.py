@@ -392,7 +392,7 @@ with cabecalho:
         '<div class="agro-eyebrow">Painel de inteligência agrícola</div>',
         unsafe_allow_html=True,
     )
-    st.title("Produção agrícola brasileira")
+    st.title("🌱 Produção agrícola brasileira")
     st.caption(
         "Culturas consideradas: Arroz, Algodão, Café, Feijão, Milho, Soja e "
         "Trigo. Período: 2000 a 2025."
