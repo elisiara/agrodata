@@ -142,10 +142,8 @@ def test_grafico_comparacao_estados_tem_ponto_por_uf_e_ano():
         {
             "uf": ["SP"] * len(anos) + ["MG"] * len(anos),
             "ano": anos * 2,
-            "quantidade_produzida_toneladas": list(range(10, 36))
-            + list(range(5, 31)),
-            "participacao_nacional_percentual": [60] * len(anos)
-            + [40] * len(anos),
+            "quantidade_produzida_toneladas": list(range(10, 36)) + list(range(5, 31)),
+            "participacao_nacional_percentual": [60] * len(anos) + [40] * len(anos),
         }
     )
 

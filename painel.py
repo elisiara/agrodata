@@ -150,10 +150,18 @@ CULTURAS: tuple[str, ...] = (
     "Trigo (em grão)",
 )
 
+PALETA_CULTURAS: tuple[str, ...] = (
+    "#193d2d",
+    "#23734d",
+    "#3b8c5e",
+    "#5ca77c",
+    "#7ebc98",
+    "#4a6152",
+    "#738a7c",
+)
+
 GEOJSON_UFS = json.loads(
-    (Path(__file__).parent / "data" / "brasil_ufs.geojson").read_text(
-        encoding="utf-8"
-    )
+    (Path(__file__).parent / "data" / "brasil_ufs.geojson").read_text(encoding="utf-8")
 )
 # Plotly's spherical projection expects GeoJSON exterior rings clockwise.
 for feature in GEOJSON_UFS["features"]:
@@ -167,9 +175,7 @@ for feature in GEOJSON_UFS["features"]:
         for ring in polygon:
             ring.reverse()
 
-UFS = tuple(
-    feature["properties"]["uf"] for feature in GEOJSON_UFS["features"]
-)
+UFS = tuple(feature["properties"]["uf"] for feature in GEOJSON_UFS["features"])
 
 
 class ErroLeituraMarts(RuntimeError):
@@ -262,7 +268,7 @@ def grafico_area_colhida(df: pd.DataFrame) -> go.Figure:
             sort=False,
             texttemplate="%{label}<br>%{value:.1f}%",
             hovertemplate="%{label}: %{value:.1f}%<extra></extra>",
-            marker={"colors": ["#23734d", "#e8c879"]},
+            marker={"colors": ["#23734d", "#b5c7b8"]},
         )
     )
     figura.update_layout(showlegend=False)
@@ -275,6 +281,7 @@ def grafico_evolucao_valor(df: pd.DataFrame) -> go.Figure:
         x="ano",
         y="valor_producao_mil_reais",
         color="cultura",
+        color_discrete_sequence=list(PALETA_CULTURAS),
         markers=True,
         labels={
             "ano": "Ano",
@@ -341,9 +348,7 @@ def grafico_mapa_estados(df: pd.DataFrame, ano: int) -> go.Figure:
         showrivers=False,
         showcountries=False,
     )
-    figura.update_traces(
-        hoverlabel={"bgcolor": "#193d2d", "font": {"color": "white"}}
-    )
+    figura.update_traces(hoverlabel={"bgcolor": "#193d2d", "font": {"color": "white"}})
     figura.update_layout(
         showlegend=False,
         margin={"l": 0, "r": 8, "t": 22, "b": 0},
@@ -445,7 +450,7 @@ def grafico_composicao_cultura(df: pd.DataFrame, uf: str) -> go.Figure:
             sort=False,
             texttemplate="%{label}<br>%{value:.1f}%",
             hovertemplate="%{label}: %{value:.2f}%<extra></extra>",
-            marker={"colors": px.colors.qualitative.Safe},
+            marker={"colors": list(PALETA_CULTURAS)},
         )
     )
     figura.update_layout(showlegend=False)
@@ -458,7 +463,7 @@ def grafico_variacao_producao(df: pd.DataFrame) -> go.Figure:
     reducoes = df.loc[df["variacao_percentual"].lt(0)]
     for dados, nome, cor in (
         (aumentos, "Aumento", "#23734d"),
-        (reducoes, "Redução", "#c65a4a"),
+        (reducoes, "Redução", "#526056"),
     ):
         figura.add_trace(
             go.Bar(
@@ -489,7 +494,7 @@ def grafico_rendimento_culturas(df: pd.DataFrame) -> go.Figure:
 
     for dados, nome, cor in (
         (positivos, "Aumento", "#23734d"),
-        (negativos, "Queda", "#c65a4a"),
+        (negativos, "Queda", "#526056"),
     ):
         x_linhas: list[float | None] = []
         y_linhas: list[str | None] = []

@@ -20,95 +20,36 @@ ESTILO = """
 <style>
 :root {
   color-scheme: light;
-  --ink: #1d3028;
-  --muted: #748178;
-  --line: #e4eae4;
-  --paper: #f4f6f3;
-  --green: #23734d;
-  --green-dark: #193d2d;
+  --ink: #1d3028; --muted: #5e6f65; --line: #e2e8e3; --paper: #f4f6f3;
+  --green: #23734d; --green-dark: #193d2d; --green-soft: #e7f2e9;
+  --slate: #526056; --sage: #b5c7b8;
 }
 * { box-sizing: border-box; }
-body {
-  max-width: 1540px;
-  margin: 0 auto;
-  padding: 32px clamp(16px, 3vw, 44px) 48px;
-  color: var(--ink);
-  background: var(--paper);
-  font: 15px/1.5 sans-serif;
-}
+body { max-width: 1540px; margin: 0 auto; padding: 32px clamp(16px, 3vw, 44px) 48px; color: var(--ink); background: var(--paper); font: 15px/1.5 sans-serif; }
 h1, h2, h3 { color: var(--ink); letter-spacing: -.025em; }
 h1 { margin: 4px 0 8px; font-size: clamp(1.8rem, 2.4vw, 2.3rem); }
 h2 { margin: 0 0 4px; font-size: 1.45rem; }
-h3 { margin: 24px 0 10px; font-size: 1.05rem; }
+h3 { margin: 20px 0 8px; font-size: 1.05rem; }
 p { margin: 6px 0; }
-.eyebrow {
-  color: var(--green);
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
+.eyebrow { color: var(--green); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .muted, .caption { color: var(--muted); }
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
-  gap: 14px;
-  margin: 20px 0;
-}
-.card, .panel {
-  min-width: 0;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 8px 24px #203b2b0a;
-}
-.card {
-  min-height: 108px;
-  padding: 16px 18px;
-  border-top: 3px solid var(--green);
-}
+.badge { display: inline-block; margin-bottom: 4px; padding: 3px 8px; border-radius: 6px; background: var(--green-soft); color: var(--green-dark); font-size: .72rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); gap: 14px; margin: 18px 0; }
+.card, .panel { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 8px 24px #203b2b0a; }
+.card { min-height: 108px; padding: 16px 18px; border-top: 3px solid var(--green); }
 .card-label { color: var(--muted); font-size: .82rem; font-weight: 650; }
-.card-value {
-  margin-top: 8px;
-  font-size: clamp(1.2rem, 1.8vw, 1.65rem);
-  font-weight: 760;
-  letter-spacing: -.04em;
-  overflow-wrap: anywhere;
-}
-.faixa {
-  margin-top: 28px;
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: #fff;
-}
-.grade {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  align-items: start;
-  margin-top: 14px;
-}
+.card-value { margin-top: 8px; font-size: clamp(1.2rem, 1.8vw, 1.65rem); font-weight: 760; letter-spacing: -.04em; overflow-wrap: anywhere; }
+.faixa { margin-top: 28px; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; margin-top: 14px; }
 .panel { overflow: hidden; padding: 12px; }
 .chart { min-width: 0; }
 .wide { grid-column: 1 / -1; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: .86rem; }
-th, td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--line);
-  text-align: left;
-  vertical-align: top;
-}
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 th { color: var(--green-dark); background: #f4f7f3; font-weight: 700; }
 tr:last-child td { border-bottom: 0; }
-footer {
-  margin-top: 28px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  text-align: right;
-}
+footer { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); text-align: right; }
 @media (max-width: 760px) {
   body { padding-top: 20px; }
   .faixa { padding: 16px; }
@@ -361,17 +302,24 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
 {cards_nacionais}
 <main>
   <section class="faixa" id="panorama">
+    <div class="badge">Aba 1 · Visão Geral</div>
     <h2>Panorama da produção</h2>
     <p class="caption">Indicadores nacionais de 2025 e evolução das culturas PAM.</p>
     <div class="grade">
-      <div><h3>05 · Área plantada: colhida × não colhida</h3><p class="caption">Brasil · 2025 · participação percentual</p>{
-        html_graficos[0]
-    }</div>
-      <div><h3>08 · Evolução do valor da produção</h3><p class="caption">Brasil · 2000–2025 · mil R$</p>{
-        html_graficos[1]
-    }<p class="caption">Série completa e sete culturas; sem recorte de período.</p></div>
+      <div>
+        <h3>05 · Área plantada: colhida × não colhida</h3>
+        <p class="caption">Brasil · 2025 · colhida 98,7% vs. perda 1,3%</p>
+        {html_graficos[0]}
+      </div>
+      <div>
+        <h3>08 · Evolução do valor da produção</h3>
+        <p class="caption">Brasil · 2000–2025 · mil R$</p>
+        {html_graficos[1]}
+        <p class="caption">Série completa e sete culturas; sem recorte de período.</p>
+      </div>
     </div>
     <h3>Municípios em destaque · líder por cultura · 2000–2025</h3>
+    <p class="caption">Maior valor bruto acumulado em 26 safras (mil R$).</p>
     {
         tabela_html(
             tabela_lideres,
@@ -385,22 +333,30 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     }
   </section>
   <section class="faixa" id="estados">
+    <div class="badge">Aba 2 · Geografia Agrícola</div>
     <h2>Distribuição por estado</h2>
     <p class="caption">Produção e participação estadual nos anos disponíveis · padrão: 2025.</p>
     {cards_estado}
     <div class="grade">
-      <div><h3>10 · Produção agrícola por UF</h3><p class="caption">Contornos estaduais: malhas territoriais do IBGE.</p>{
-        html_graficos[2]
-    }</div>
-      <div><h3>10 · Estados com maior participação</h3><p class="caption">2025 · participação nacional e volume produzido</p>{
-        html_graficos[3]
-    }</div>
-      <div><h3>10 · Comparação da produção por UF</h3><p class="caption">Produção (t) · todos os anos disponíveis entre 2000 e 2025</p>{
-        html_graficos[4]
-    }</div>
-      <div><h3>06 · Área plantada versus colhida por UF</h3><p class="caption">2025 · hectares</p>{
-        html_graficos[5]
-    }
+      <div>
+        <h3>10 · Produção agrícola por UF</h3>
+        <p class="caption">Contornos estaduais: malhas territoriais do IBGE.</p>
+        {html_graficos[2]}
+      </div>
+      <div>
+        <h3>10 · Estados com maior participação</h3>
+        <p class="caption">2025 · participação nacional e volume produzido</p>
+        {html_graficos[3]}
+      </div>
+      <div>
+        <h3>10 · Comparação da produção por UF</h3>
+        <p class="caption">Produção (t) · todos os anos disponíveis entre 2000 e 2025</p>
+        {html_graficos[4]}
+      </div>
+      <div>
+        <h3>06 · Área plantada versus colhida por UF</h3>
+        <p class="caption">2025 · hectares</p>
+        {html_graficos[5]}
         {
         tabela_html(
             tabela_area_estado,
@@ -415,6 +371,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
       </div>
     </div>
     <h3>15 · Composição do valor por cultura e UF · 2025 · {escape(uf_selecionada)}</h3>
+    <p class="caption">Concentração via HHI (0 a 1) e Nº efetivo de culturas.</p>
     {cards_composicao}
     <div class="grade">
       <div>{html_graficos[6]}</div>
@@ -435,6 +392,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     }</div>
     </div>
     <h3>10 · Ranking estadual por ano · 2025</h3>
+    <p class="caption">Classificação das 27 UFs com produção (t) e participação (%).</p>
     {
         tabela_html(
             distribuicao_ordenada,
@@ -450,16 +408,24 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     }
   </section>
   <section class="faixa" id="expansao">
+    <div class="badge">Aba 3 · Expansão Municipal</div>
     <h2>Expansão e rankings</h2>
     <p class="caption">Comparações de 2000 a 2025 e variação anual de 2024 a 2025.</p>
     {cards_municipais}
     <div class="grade">
-      <div><h3>04 · Variação da produção por cultura</h3><p class="caption">2024 → 2025 · variação percentual nacional</p>{
-        html_graficos[7]
-    }</div>
-      <div><h3>Filtros dos rankings municipais</h3><p>UF: Todas · Município/código IBGE: sem busca</p><p class="caption">03 e 07 não retornam UF; as tabelas aplicam o universo materializado. Sem filtro individual por cultura.</p></div>
+      <div>
+        <h3>04 · Variação da produção por cultura</h3>
+        <p class="caption">2024 → 2025 · variação percentual nacional</p>
+        {html_graficos[7]}
+      </div>
+      <div>
+        <h3>Filtros dos rankings municipais</h3>
+        <p>UF: Todas · Município/código IBGE: sem busca</p>
+        <p class="caption">03 e 07 não retornam UF; as tabelas aplicam o universo materializado. Sem filtro individual por cultura.</p>
+      </div>
     </div>
     <h3>03 · Municípios com maior expansão de área · 2000–2025</h3>
+    <p class="caption">Top 10 municípios com maior avanço de área plantada (ha).</p>
     {
         tabela_html(
             tabela_expansao,
@@ -475,6 +441,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         )
     }
     <h3>07 · Municípios com maior aumento de produção · 2000–2025</h3>
+    <p class="caption">Top 10 municípios com maior ganho de produção física (t).</p>
     {
         tabela_html(
             tabela_aumento,
@@ -489,7 +456,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         )
     }
     <h3>14 · Maiores aumentos de rendimento agregado · 2000–2025</h3>
-    <p class="caption">Indicador agregado das culturas, não rendimento de cultura individual.</p>
+    <p class="caption">Indicador agregado das culturas: (1000 × Volume t) ÷ Área Colhida ha.</p>
     {
         tabela_html(
             tabela_rendimento_municipal,
@@ -525,13 +492,17 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
     }
   </section>
   <section class="faixa" id="produtividade">
+    <div class="badge">Aba 4 · Produtividade & Rentabilidade</div>
     <h2>Produtividade e valor por hectare</h2>
     <p class="caption">Rendimento físico nacional (kg/ha) e valor bruto municipal (R$/ha) são indicadores distintos.</p>
     <div class="grade">
-      <div><h3>11 · Rendimento nacional por cultura · 2000–2025</h3><p class="caption">Dumbbell · kg/ha · ordenado pelo aumento percentual do mart</p>{
-        html_graficos[8]
-    }</div>
-      <div><h3>11 · Rendimento por cultura</h3>
+      <div>
+        <h3>11 · Rendimento nacional por cultura · 2000–2025</h3>
+        <p class="caption">Dumbbell · kg/ha · ordenado pelo aumento percentual do mart</p>
+        {html_graficos[8]}
+      </div>
+      <div>
+        <h3>11 · Rendimento por cultura</h3>
         {
         tabela_html(
             tabela_rendimento_cultura,
@@ -552,8 +523,12 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
         escape(cultura_valor)
     }. Valor bruto não representa lucro. Conversão de mil R$/ha para R$/ha aplicada somente para apresentação.</p>
     <div class="grade">
-      <div><h3>Top 10 · valor bruto por hectare</h3>{html_graficos[9]}</div>
-      <div><h3>Ranking detalhado · R$/ha</h3>
+      <div>
+        <h3>Top 10 · valor bruto por hectare</h3>
+        {html_graficos[9]}
+      </div>
+      <div>
+        <h3>Ranking detalhado · R$/ha</h3>
         {
         tabela_html(
             tabela_valor,

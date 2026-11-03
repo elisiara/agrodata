@@ -3,7 +3,7 @@
 [![Python Version](https://img.shields.io/badge/Python-3.12%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Database](https://img.shields.io/badge/DuckDB-OLAP%20In--Process-yellow.svg?logo=duckdb&logoColor=white)](https://duckdb.org/)
 [![Dashboard](https://img.shields.io/badge/Streamlit-App%20Live-FF4B4B.svg?logo=streamlit&logoColor=white)](https://agrodata-projeto-enjenharia-de-dados--nivel-junior.streamlit.app/)
-[![Testing](https://img.shields.io/badge/pytest-Coverage%2093.45%25-brightgreen.svg?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Testing](https://img.shields.io/badge/pytest-Coverage%2093.46%25-brightgreen.svg?logo=pytest&logoColor=white)](https://docs.pytest.org/)
 [![Code Style](https://img.shields.io/badge/Code%20Style-Ruff-black.svg?logo=ruff&logoColor=white)](https://docs.astral.sh/ruff/)
 [![Architecture](https://img.shields.io/badge/Architecture-Medallion%20(Raw%2FRefined%2FMarts)-orange.svg)](#-arquitetura-medalhão)
 
@@ -267,38 +267,48 @@ Cada mart é gerado a partir de um arquivo SQL dedicado em `sql/marts/`:
 ## 🖥️ Aplicações de Consumo
 
 ### 1. Dashboard Streamlit (`app.py` & `painel.py`)
-O painel opera em layout panorâmico (`layout="wide"`), com cache inteligente e visualização orientada a tomada de decisão. O topo exibe **quatro cartões executivos de 2025** (R$ 553,24 bi em valor, 313,26 mi t produzidas, 79,27 mi ha colhidos e 3,95 t/ha de rendimento médio) que permanecem visíveis em todas as abas.
+O painel opera em layout panorâmico (`layout="wide"`), com cache inteligente via `st.cache_data`, renderização otimizada e arquitetura de visualização voltada à tomada de decisão de nível executivo.
+
+#### 🎨 Identidade Visual e Design System Unificado
+- **Paleta Harmônica AgroData:** Construída estritamente em tons de verde floresta (`#193d2d`), esmeralda (`#23734d`), sálvia suave (`#b5c7b8`), cinza ardósia neutro (`#526056`), cinza claro (`#e2e8e3`) e branco puro (`#ffffff`).
+- **Remoção de Tons Dissonantes:** Cores fora do padrão visual foram sobrescritas ou eliminadas:
+  - Variações negativas e quedas de rendimento que antes utilizavam vermelho foram padronizadas em **cinza ardósia neutro** (`#526056`), garantindo alto contraste visual sem agredir a paleta.
+  - A parcela não colhida no gráfico de rosca nacional foi migrada de amarelo dourado para **sálvia suave** (`#b5c7b8`).
+  - Paletas categóricas genéricas (com azul, vermelho ou laranja) foram substituídas por uma escala tonal dedicada de 7 tons de verde e ardósia (`PALETA_CULTURAS`).
+- **Entrega Pedagógica de Informações (Contexto de Negócio):** Todas as tabelas e gráficos receberam crachás identificadores de mart (`.agro-badge-info`), cartões explicativos (`.agro-card-note`) e orientações analíticas de leitura, permitindo que qualquer leitor técnico ou executivo compreenda instantaneamente o significado de cada métrica, o grão dos dados, a unidade de medida e os conceitos econômicos (como o índice HHI, número efetivo de culturas e a distinção entre faturamento bruto por hectare e lucro líquido).
+
+O topo da aplicação exibe **quatro cartões executivos de 2025** (R$ 553,24 bi em valor, 313,26 mi t produzidas, 79,27 mi ha colhidos e 3,95 t/ha de rendimento médio ponderado) acompanhados de notas metodológicas, permanecendo fixos e visíveis em todas as abas.
 
 #### 🌾 Aba 1 — Panorama da Produção Agrícola
-Apresenta o balanço nacional de perdas (área colhida vs. não colhida), a evolução anual do valor da produção das 7 culturas com seletor de intervalo de anos e a identificação do município líder histórico (2000–2025) ou do Top 20 de 2025.
+Apresenta o balanço nacional de perdas e sucesso de colheita (área colhida 98,7% vs. não colhida 1,3%), a evolução histórica do valor da produção das 7 culturas (2000–2025) com seletor interativo de anos e culturas, além da identificação dos polos municipais históricos (acumulado de 26 safras) ou das 20 capitais agrícolas líderes da safra 2025.
 
 <p align="center">
   <img src="docs/assets/dashboard_panorama.png" alt="Aba 1 - Panorama da Produção Agrícola" width="100%">
 </p>
 
 #### 🗺️ Aba 2 — Distribuição por Estado
-Permite navegar pela série histórica (2000 a 2025) sincronizando o mapa coroplético do Brasil, o ranking de estados líderes e o gráfico de participação estadual. Traz ainda a análise de concentração produtiva da UF selecionada com cálculo do índice HHI e número efetivo de culturas.
+Permite navegar pela série histórica (2000 a 2025) sincronizando o mapa coroplético do Brasil (sobre malhas oficiais do IBGE), os cartões de liderança estadual (Mato Grosso líder com 28,14% de participação e 88 mi t em 2025), o ranking de participação percentual e a comparação de safras. Traz ainda a análise de eficiência operacional (área semeada vs. colhida por estado) e a decomposição de portfólio agrícola da UF selecionada com cálculo do índice Herfindahl-Hirschman (HHI) e número efetivo de culturas.
 
 <p align="center">
   <img src="docs/assets/dashboard_distribuicao_por_estado.png" alt="Aba 2 - Distribuição por Estado" width="100%">
 </p>
 
 #### 📈 Aba 3 — Expansão e Rankings
-Compara a safra recente (2024 vs. 2025) e lista os municípios com maior expansão de área e ganho de volume colhido. Inclui a lista investigativa de municípios onde a área plantada cresceu sem aumento proporcional na produção.
+Compara a oscilação interanual (2024 vs. 2025) por meio de barras divergentes (verde para expansão e cinza ardósia para retração de volume) e lista os municípios com maior incorporação territorial de área plantada (avanço da fronteira agrícola) e maior ganho em tonelagem. Inclui ainda o ranking de evolução do rendimento agregado ponderado e a tabela de auditoria de anomalias/frustração de safra (municípios com expansão de área sem aumento de produção).
 
 <p align="center">
   <img src="docs/assets/dashboard_expansao_e_rankings.png" alt="Aba 3 - Expansão e Rankings" width="100%">
 </p>
 
 #### 🚜 Aba 4 — Produtividade e Valor por Hectare
-Contrapõe os ganhos de rendimento físico (kg/ha) de cada cultura entre 2000 e 2025 e apresenta o ranking municipal de valor bruto por hectare colhido (R$/ha), permitindo analisar a rentabilidade bruta agregada da terra por cultura.
+Contrapõe a eficiência biológica/agronômica (kg/ha) da eficiência econômica/comercial (R$/ha). Traz o gráfico dumbbell conectando a produtividade de cada cultura de 2000 a 2025 e o ranking dos 10 municípios com maior valor bruto gerado por hectare colhido na cultura selecionada, com ressalva expressa de que valor bruto não reflete margem de lucro líquido.
 
 <p align="center">
   <img src="docs/assets/dashboard_produtividade_e_valor_ha.png" alt="Aba 4 - Produtividade e Valor por Hectare" width="100%">
 </p>
 
 ### 2. Relatório Executivo HTML (`relatorio.py`)
-Gera um documento autônomo (`relatorio.html`) estilizado com paleta agrícola profissional, renderizando tabelas consolidadas e gráficos Plotly estáticos reutilizados de `painel.py`. Ideal para apresentações executivas offline sem necessidade de servidor ativo.
+Gera um documento autônomo e independente (`relatorio.html`) estritamente padronizado na nova paleta visual verde e neutra, renderizando tabelas consolidadas com crachás explicativos e as 10 figuras Plotly reutilizadas diretamente de `painel.py`. Possui arquitetura leve (< 200 KB nos testes de unidade com plotly embutido via CDN), determinismo temporal e rodapé com timestamp de extração. Ideal para distribuição offline e apresentações a tomadores de decisão sem dependência de servidores ativos.
 
 ### 3. DuckDB Web UI (`ui.py`)
 Permite ao engenheiro de dados ou analista explorar interativamente as tabelas dos schemas `raw`, `refined` e `marts` via navegador, executando consultas ad-hoc no endereço `http://localhost:4213`.
@@ -369,7 +379,7 @@ uv run pytest --cov
 ```
 
 - **Meta Mínima Exigida:** 60%
-- **Resultado Atual:** **48 testes aprovados**, com cobertura total de **93,45%**.
+- **Resultado Atual:** **48 testes aprovados**, com cobertura total de **93,46%**.
 - **Módulos Auditados:** `pipeline/db.py`, `pipeline/ingestao.py`, `pipeline/transformacao.py`, `pipeline/marts.py`, `painel.py` e `relatorio.py`.
 
 ### Executar Linter e Verificação de Formatação
