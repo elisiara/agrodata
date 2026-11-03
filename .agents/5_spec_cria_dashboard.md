@@ -50,7 +50,7 @@ SPEC
 
 3. LAYOUT (app.py) — de cima para baixo, layout="wide"
   Cabeçalho:
-    Título "Produção agrícola brasileira", alinhado à esquerda.
+    Título "AgroData: Produção agrícola brasileira", alinhado à esquerda.
     Subtítulo abaixo do título:
       "Culturas consideradas: Arroz, Algodão, Café, Feijão, Milho, Soja e Trigo.
        Período: 2000 a 2025."
@@ -264,7 +264,7 @@ SPEC
 
 CRITÉRIOS DE ACEITE
 -
-- O cabeçalho exibe o título "Produção agrícola brasileira" e, logo abaixo,
+- O cabeçalho exibe o título "AgroData: Produção agrícola brasileira" e, logo abaixo,
   o subtítulo com as sete culturas consideradas e o período de 2000 a 2025.
 - As quatro abas — Panorama, Distribuição por estado, Expansão e rankings,
   Produtividade e valor/ha — abrem o conteúdo correspondente. Os quatro

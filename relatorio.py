@@ -353,7 +353,7 @@ def gerar_relatorio(marts: dict[str, pd.DataFrame], gerado_em: datetime) -> str:
 <body>
 <header>
   <div class="eyebrow">Painel de inteligência agrícola</div>
-  <h1>Produção agrícola brasileira</h1>
+  <h1>AgroData: Produção agrícola brasileira</h1>
   <p class="muted">Culturas consideradas: Arroz, Algodão, Café, Feijão, Milho, Soja e Trigo. Período: 2000 a 2025.</p>
   <p class="muted">Fonte: PAM · IBGE SIDRA 5457</p>
   <p class="caption">Dados carregados do DuckDB · indicadores nacionais de 2025 · rendimento convertido de kg/ha para t/ha.</p>
