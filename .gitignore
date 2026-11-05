@@ -1,0 +1,36 @@
+# Ambientes e caches do Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testes, cobertura e ferramentas de qualidade
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Segredos e configuracoes locais
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Logs, arquivos temporarios e do sistema
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Artefatos de build
+build/
+dist/
+*.egg-info/
+
+# Arquivos auxiliares do DuckDB (o banco agrodata.duckdb e necessario ao app)
+*.duckdb.wal
