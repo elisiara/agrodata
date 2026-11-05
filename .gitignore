@@ -36,4 +36,4 @@ dist/
 *.duckdb.wal/
 
 # Arquivos de Spec e configurações de mcp
-.agents/
+/.agents/
