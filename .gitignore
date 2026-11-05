@@ -33,4 +33,7 @@ dist/
 *.egg-info/
 
 # Arquivos auxiliares do DuckDB (o banco agrodata.duckdb e necessario ao app)
-*.duckdb.wal.agents/
+*.duckdb.wal/
+
+# Arquivos de Spec e configurações de mcp
+.agents/
