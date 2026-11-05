@@ -68,7 +68,9 @@ O **AgroData** foi concebido com os seguintes objetivos de engenharia:
 
 ```text
 agrodata/
-├── .agents/                 # Especificações formais das etapas (Spec-Driven Development)
+├── .gitignore               # Regras para arquivos locais, caches e artefatos ignorados
+├── .streamlit/
+│   └── config.toml          # Configuração visual e de execução do Streamlit
 ├── data/                    # Malhas geográficas (GeoJSON de UFs brasileiras)
 ├── design/                  # Protótipos de interface e rascunhos visuais
 ├── docs/
@@ -81,13 +83,15 @@ agrodata/
 ├── raw/                     # Arquivos CSV originais imutáveis (IBGE PAM + GOV.BR)
 ├── sql/
 │   └── marts/               # 15 consultas SQL analíticas independentes (NN_nome.sql)
-├── test/                    # Suíte de testes unitários automatizados (48 testes)
+├── test/                    # Suíte de testes unitários automatizados
 ├── app.py                   # Aplicação Streamlit (Dashboard com 4 abas e métricas)
+├── dashboard.py             # Contrato, schema e validação dos marts consumidos pelo app
 ├── painel.py                # Camada de apresentação pura (formatação e figuras Plotly)
 ├── relatorio.py             # Gerador do Relatório Executivo HTML independente
 ├── ui.py                    # Inicializador da extensão Web UI nativa do DuckDB
 ├── pyproject.toml           # Metadados do projeto e configurações de ferramentas
 ├── uv.lock                  # Lockfile com resolução exata de dependências
+├── agrodata.duckdb          # Banco local com camadas e marts materializados
 └── README.md                # Documentação completa do projeto
 ```
 
@@ -250,11 +254,11 @@ Cada mart é gerado a partir de um arquivo SQL dedicado em `sql/marts/`:
 | **02** | `20_municipios_maiores_produtores_em_2025` | 1 linha por município (20 linhas) | Top 20 municípios em 2025 por valor total somado e volume colhido. |
 | **03** | `municipios_maior_expansao_area_plantada` | 1 linha por município (10 linhas) | Top 10 municípios com maior incremento absoluto de área plantada (2000 a 2025). |
 | **04** | `variacao_percentual_quantidade_produzida_por_cultura_2024_2025` | 1 linha por cultura (7 linhas) | Variação percentual e em volume físico produzido no Brasil de 2024 para 2025. |
-| **05** | `percentual_area_plantada_colhida_em_2025` | 1 linha (Total Brasil) | Balanço nacional de perdas: área plantada vs. área colhida e taxa de colheita efetiva. |
+| **05** | `percentual_area_plantada_colhida_em_2025` | 1 linha (Total Brasil) | Proporção da área plantada registrada como colhida e diferença entre as áreas; não comprova perdas nem identifica suas causas. |
 | **06** | `diferenca_area_plantada_colhida_por_estado_2025` | 1 linha por UF (27 linhas) | Diferença em hectares entre área plantada e colhida agregada por estado em 2025. |
 | **07** | `municipios_maior_aumento_quantidade_produzida_2000_2025` | 1 linha por município (10 linhas) | Top 10 municípios com maior aumento absoluto de produção em toneladas entre 2000 e 2025. |
 | **08** | `evolucao_valor_producao_por_cultura_2000_2025` | 1 linha por ano/cultura (182 linhas) | Série histórica nacional anual (2000–2025) do valor da produção por cultura e variações anuais. |
-| **09** | `expansao_area_sem_aumento_producao_2000_2025` | 1 linha por município | Lista municípios em que a área plantada cresceu mas o volume colhido caiu (anomalias/frustração de safra). |
+| **09** | `expansao_area_sem_aumento_producao_2000_2025` | 1 linha por município | Sinaliza municípios com aumento de área plantada e redução do volume colhido para investigação; não identifica causas. |
 | **10** | `distribuicao_geografica_producao_por_estado_2000_2025` | 1 linha por UF/ano (702 linhas) | Série temporal completa de participação percentual de cada UF na produção agrícola nacional. |
 | **11** | `ranking_aumento_rendimento_medio_por_cultura_2000_2025` | 1 linha por cultura (7 linhas) | Ranking de ganhos de produtividade física (kg/ha) das culturas entre 2000 e 2025. |
 | **12** | `resumo_totais_2025` | 1 linha (Resumo Brasil) | Quatro cartões executivos de 2025 com valores brutos e em escalas (bi R$, mi t, mi ha, t/ha). |
@@ -266,8 +270,11 @@ Cada mart é gerado a partir de um arquivo SQL dedicado em `sql/marts/`:
 
 ## 🖥️ Aplicações de Consumo
 
-### 1. Dashboard Streamlit (`app.py` & `painel.py`)
+### 1. Dashboard Streamlit (`app.py`, `dashboard.py` & `painel.py`)
 O painel opera em layout panorâmico (`layout="wide"`), com cache inteligente via `st.cache_data`, renderização otimizada e arquitetura de visualização voltada à tomada de decisão de nível executivo.
+Antes da renderização, a aplicação valida a presença, as colunas obrigatórias e a cardinalidade dos marts de linha única, além de rejeitar marts vazios. Incompatibilidades são apresentadas com o nome do mart afetado, em vez de falharem em acessos posteriores.
+
+`dashboard.py` centraliza o contrato de dados do painel e a função `validar_marts`, chamada por `app.py` antes da renderização. Não é um comando de inicialização nem precisa ser executado separadamente: ao iniciar com `uv run streamlit run app.py`, o Streamlit importa e executa essa validação. Os testes desse contrato ficam em `test/test_dashboard.py`; o Ruff verifica o estilo, mas não executa a aplicação nem substitui os testes.
 
 #### 🎨 Identidade Visual e Design System Unificado
 - **Paleta Harmônica AgroData:** Construída estritamente em tons de verde floresta (`#193d2d`), esmeralda (`#23734d`), sálvia suave (`#b5c7b8`), cinza ardósia neutro (`#526056`), cinza claro (`#e2e8e3`) e branco puro (`#ffffff`).
@@ -280,7 +287,7 @@ O painel opera em layout panorâmico (`layout="wide"`), com cache inteligente vi
 O topo da aplicação exibe **quatro cartões executivos de 2025** (R$ 553,24 bi em valor, 313,26 mi t produzidas, 79,27 mi ha colhidos e 3,95 t/ha de rendimento médio ponderado) acompanhados de notas metodológicas, permanecendo fixos e visíveis em todas as abas.
 
 #### 🌾 Aba 1 — Panorama da Produção Agrícola
-Apresenta o balanço nacional de perdas e sucesso de colheita (área colhida 98,7% vs. não colhida 1,3%), a evolução histórica do valor da produção das 7 culturas (2000–2025) com seletor interativo de anos e culturas, além da identificação dos polos municipais históricos (acumulado de 26 safras) ou das 20 capitais agrícolas líderes da safra 2025.
+Apresenta a proporção nacional da área plantada registrada como colhida (98,7% vs. 1,3% não colhida). A diferença entre essas áreas não comprova perda nem permite atribuir causas. A aba também mostra a evolução histórica do valor da produção das 7 culturas (2000–2025), com seletor interativo de anos e culturas, e identifica os polos municipais históricos (acumulado de 26 safras) ou as 20 capitais agrícolas líderes da safra 2025.
 
 <p align="center">
   <img src="docs/assets/dashboard_panorama.png" alt="Aba 1 - Panorama da Produção Agrícola" width="100%">
@@ -379,8 +386,8 @@ uv run pytest --cov
 ```
 
 - **Meta Mínima Exigida:** 60%
-- **Resultado Atual:** **48 testes aprovados**, com cobertura total de **93,46%**.
-- **Módulos Auditados:** `pipeline/db.py`, `pipeline/ingestao.py`, `pipeline/transformacao.py`, `pipeline/marts.py`, `painel.py` e `relatorio.py`.
+- **Resultado Atual:** **52 testes aprovados**, com cobertura total de **93,68%** (`uv run pytest --cov`).
+- **Módulos Auditados:** `pipeline/db.py`, `pipeline/ingestao.py`, `pipeline/transformacao.py`, `pipeline/marts.py`, `dashboard.py`, `painel.py` e `relatorio.py`.
 
 ### Executar Linter e Verificação de Formatação
 

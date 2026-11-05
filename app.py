@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from html import escape
+
 import pandas as pd
 import streamlit as st
 
 import painel
+from dashboard import validar_marts
 
 st.set_page_config(
     page_title="Produção agrícola brasileira | AgroData",
@@ -269,124 +272,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-COLUNAS_OBRIGATORIAS: dict[str, tuple[str, ...]] = {
-    "ranking_valor_da_producao_muncipio_por_cultura": (
-        "cultura",
-        "municipio",
-        "uf",
-        "valor_total_producao_mil_reais",
-    ),
-    "20_municipios_maiores_produtores_em_2025": (
-        "ranking",
-        "municipio",
-        "valor_total_producao_mil_reais",
-        "quantidade_total_toneladas",
-    ),
-    "municipios_maior_expansao_area_plantada": (
-        "ranking",
-        "codigo_municipio_ibge",
-        "municipio",
-        "crescimento_area_hectares",
-        "crescimento_area_percentual",
-    ),
-    "variacao_percentual_quantidade_produzida_por_cultura_2024_2025": (
-        "cultura",
-        "variacao_percentual",
-    ),
-    "percentual_area_plantada_colhida_em_2025": (
-        "percentual_area_plantada_colhida",
-        "percentual_area_plantada_nao_colhida",
-    ),
-    "diferenca_area_plantada_colhida_por_estado_2025": (
-        "uf",
-        "area_plantada_total_hectares",
-        "area_colhida_total_hectares",
-        "diferenca_area_plantada_colhida_hectares",
-    ),
-    "municipios_maior_aumento_quantidade_produzida_2000_2025": (
-        "ranking_2025",
-        "codigo_municipio_ibge",
-        "municipio",
-        "quantidade_2000_toneladas",
-        "quantidade_2025_toneladas",
-        "aumento_quantidade_toneladas",
-    ),
-    "evolucao_valor_producao_por_cultura_2000_2025": (
-        "ano",
-        "cultura",
-        "valor_producao_mil_reais",
-    ),
-    "expansao_area_sem_aumento_producao_2000_2025": (
-        "codigo_municipio_ibge",
-        "municipio",
-        "uf",
-        "aumento_area_hectares",
-        "variacao_quantidade_toneladas",
-    ),
-    "distribuicao_geografica_producao_por_estado_2000_2025": (
-        "uf",
-        "ano",
-        "ranking_no_ano",
-        "quantidade_produzida_toneladas",
-        "participacao_nacional_percentual",
-        "destaque",
-    ),
-    "ranking_aumento_rendimento_medio_por_cultura_2000_2025": (
-        "ranking_aumento",
-        "cultura",
-        "rendimento_2000_kg_por_hectare",
-        "rendimento_2025_kg_por_hectare",
-        "aumento_rendimento_kg_por_hectare",
-        "aumento_percentual",
-    ),
-    "resumo_totais_2025": (
-        "receita_producao_mil_reais",
-        "volume_total_toneladas",
-        "area_total_hectares",
-        "rendimento_medio_kg_por_hectare",
-    ),
-    "ranking_valor_bruto_por_hectare_cultura_2025": (
-        "cultura",
-        "ranking_na_cultura",
-        "municipio",
-        "uf",
-        "valor_producao_mil_reais",
-        "area_colhida_hectares",
-        "valor_bruto_por_hectare_mil_reais",
-    ),
-    "ranking_municipios_evolucao_rendimento_agregado_2000_2025": (
-        "ranking",
-        "codigo_municipio_ibge",
-        "municipio",
-        "uf",
-        "rendimento_2000_kg_por_hectare",
-        "rendimento_2025_kg_por_hectare",
-        "aumento_rendimento_kg_por_hectare",
-        "aumento_rendimento_percentual",
-    ),
-    "concentracao_valor_producao_por_cultura_estado_2025": (
-        "uf",
-        "cultura",
-        "valor_total_estado_mil_reais",
-        "participacao_valor_estado_percentual",
-        "indice_concentracao_hhi",
-        "numero_efetivo_culturas",
-    ),
-}
-
-
 @st.cache_data(show_spinner="Carregando resultados dos marts...")
 def carregar_marts() -> dict[str, pd.DataFrame]:
     return painel.ler(painel.MARTS)
-
-
-def validar_colunas(dados: dict[str, pd.DataFrame]) -> list[str]:
-    incompatibilidades: list[str] = []
-    for nome, esperadas in COLUNAS_OBRIGATORIAS.items():
-        ausentes = [coluna for coluna in esperadas if coluna not in dados[nome].columns]
-        if ausentes:
-            incompatibilidades.append(f"marts.{nome}: {', '.join(ausentes)}")
-    return incompatibilidades
 
 
 def tabela(
@@ -457,11 +345,11 @@ try:
 except painel.ErroLeituraMarts as erro:
     mostrar_erro_marts(f"{erro} O dashboard não usa dados demonstrativos.")
 
-colunas_faltantes = validar_colunas(marts)
-if colunas_faltantes:
+incompatibilidades = validar_marts(marts)
+if incompatibilidades:
     mostrar_erro_marts(
-        "O schema materializado está desatualizado: "
-        + "; ".join(colunas_faltantes)
+        "Os marts estão ausentes, vazios ou incompatíveis com o dashboard: "
+        + "; ".join(incompatibilidades)
         + ". Execute `uv run python -m pipeline.marts`."
     )
 
@@ -522,8 +410,9 @@ with aba_panorama:
             '<div class="agro-card-note">'
             "<strong>O que esta métrica entrega:</strong> Avalia o índice de efetivação da safra em 2025. "
             "A área colhida (verde) representa o solo que completou o ciclo produtivo; "
-            "a área não colhida (sálvia) reflete perdas causadas por quebras climáticas (estiagem, geada), "
-            "ataques severos de pragas ou desestímulo econômico de colheita."
+            "a área não colhida (sálvia) representa a parcela da área plantada que não consta como colhida. "
+            "Essa diferença não comprova perda nem permite atribuir sua causa; fatores climáticos, pragas e "
+            "decisões econômicas são hipóteses que exigem dados adicionais."
             "</div>",
             unsafe_allow_html=True,
         )
@@ -647,12 +536,17 @@ with aba_estados:
         key="ano_estados",
     )
     dados_ano = distribuicao.loc[distribuicao["ano"].eq(ano_estado)]
+    if dados_ano.empty:
+        mostrar_erro_marts(
+            f"A consulta 10 não retornou registros para o ano {ano_estado}."
+        )
     lider = dados_ano.sort_values("ranking_no_ano").head(1).iloc[0]
+    uf_lider_html = escape(str(lider["uf"]), quote=True)
 
     st.markdown(
         '<div class="agro-card-note">'
         f"<strong>Destaque Estadual na Safra {ano_estado}:</strong> "
-        f"A unidade federativa de maior relevância produtiva no ano de referência foi <strong>{lider['uf']}</strong>, "
+        f"A unidade federativa de maior relevância produtiva no ano de referência foi <strong>{uf_lider_html}</strong>, "
         f"responsável por {painel.numero(lider['quantidade_produzida_toneladas'])} toneladas "
         f"({painel.pct(lider['participacao_nacional_percentual'], 2)} de todo o volume nacional das 7 culturas)."
         "</div>",
@@ -752,7 +646,8 @@ with aba_estados:
         st.markdown(
             '<div class="agro-card-note">'
             "<strong>O que este painel entrega:</strong> Contrapõe os hectares semeados contra os colhidos em 2025. "
-            "A coluna <em>Diferença (ha)</em> quantifica a área perdida por fatores climáticos, pragas ou inviabilidade operacional."
+            "A diferença entre essas medidas não comprova perda nem identifica sua causa; explicações climáticas, "
+            "fitossanitárias ou operacionais são hipóteses que precisam de dados adicionais."
             "</div>",
             unsafe_allow_html=True,
         )
@@ -769,7 +664,7 @@ with aba_estados:
                 "uf": "UF",
                 "area_plantada_total_hectares": "Plantada (ha)",
                 "area_colhida_total_hectares": "Colhida (ha)",
-                "diferenca_area_plantada_colhida_hectares": "Diferença / Perda (ha)",
+                "diferenca_area_plantada_colhida_hectares": "Diferença entre áreas (ha)",
             },
             altura=300,
         )
@@ -781,12 +676,20 @@ with aba_estados:
     st.markdown("**15 · Composição do valor por cultura e UF · 2025**")
     composicao = marts["concentracao_valor_producao_por_cultura_estado_2025"]
     ufs_composicao = tuple(sorted(composicao["uf"].drop_duplicates().tolist()))
+    if not ufs_composicao:
+        mostrar_erro_marts(
+            "A consulta 15 não retornou UFs para a composição estadual de 2025."
+        )
     uf_selecionada = st.selectbox(
         "UF para composição",
         options=ufs_composicao,
         key="uf_composicao",
     )
     composicao_uf = composicao.loc[composicao["uf"].eq(uf_selecionada)]
+    if composicao_uf.empty:
+        mostrar_erro_marts(
+            f"A consulta 15 não retornou culturas para a UF {uf_selecionada}."
+        )
     linha_composicao = composicao_uf.iloc[0]
 
     st.markdown(
